@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log do Projeto — Sistema de Contratos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F5F3;--s1:#EEEEE9;--s2:#fff;
+  --border:rgba(0,0,0,0.10);--bs:rgba(0,0,0,0.18);
+  --tp:#1a1a18;--ts:#4a4a45;--tm:#888780;--r:8px;
+  --acc:#185FA5;--bg-acc:#E6F1FB;--t-acc:#185FA5;
+  --bg-ok:#DCFCE7;--t-ok:#15803D;
+  --bg-wn:#FEF3C7;--t-wn:#92400E;
+  --bg-er:#FEE2E2;--t-er:#B91C1C;
+  --bg-pr:#EDE9FE;--t-pr:#5B21B6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tp);font-size:14px;min-height:100vh}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px}
+#setup-screen{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.setup-box{background:var(--s2);border-radius:16px;padding:28px;width:100%;max-width:500px}
+.setup-box h2{font-size:17px;font-weight:500;margin-bottom:6px}
+.setup-box p{font-size:13px;color:var(--ts);margin-bottom:20px;line-height:1.6}
+.step{background:var(--bg);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.step-num{font-size:11px;font-weight:600;color:var(--t-acc);margin-bottom:4px}
+.step a{color:var(--acc);text-decoration:none}.step a:hover{text-decoration:underline}
+.step code{background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:4px;font-size:12px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:0.5px solid var(--bs)}
+.header h1{font-size:17px;font-weight:500}
+.header-sub{font-size:12px;color:var(--tm);margin-top:3px}
+.sync-bar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tm);margin-bottom:14px;padding:8px 12px;background:var(--s2);border:0.5px solid var(--bs);border-radius:var(--r)}
+.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sd.ok{background:#22c55e}.sd.sy{background:#f59e0b;animation:pu 1s infinite}.sd.er{background:#ef4444}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:0.3}}
+.tabs{display:flex;border-bottom:0.5px solid var(--bs);margin-bottom:20px}
+.tab{padding:9px 16px;font-size:13px;color:var(--tm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px;user-select:none;white-space:nowrap}
+.tab:hover{color:var(--ts)}.tab.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:500}
+.page{display:none}.page.on{display:block}
+.card{background:var(--s2);border:0.5px solid var(--bs);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.ct{font-size:13px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.btn{padding:7px 14px;border-radius:var(--r);font-size:13px;cursor:pointer;border:0.5px solid var(--bs);background:var(--s2);color:var(--ts);display:inline-flex;align-items:center;gap:5px;transition:background 0.1s}
+.btn:hover{background:var(--s1)}.btn-p{background:var(--acc);color:#fff;border-color:var(--acc)}.btn-p:hover{opacity:.9}
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:6px}.btn-d{color:var(--t-er);border-color:#FECACA;background:var(--bg-er)}
+input,textarea,select{border:0.5px solid var(--bs);border-radius:var(--r);padding:8px 11px;font-size:13px;background:var(--s1);color:var(--tp);font-family:inherit;width:100%;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--acc);background:var(--s2)}
+textarea{resize:vertical;min-height:72px}
+label{font-size:12px;font-weight:500;color:var(--ts);display:block;margin-bottom:4px}
+.fr{display:grid;gap:10px;margin-bottom:12px}
+.fr2{grid-template-columns:1fr 1fr}.fr3{grid-template-columns:1fr 1fr 1fr}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.bgn{background:var(--bg-ok);color:var(--t-ok)}.bbl{background:var(--bg-acc);color:var(--t-acc)}
+.bam{background:var(--bg-wn);color:var(--t-wn)}.brd{background:var(--bg-er);color:var(--t-er)}
+.bgy{background:var(--s1);color:var(--tm);border:0.5px solid var(--bs)}.bpr{background:var(--bg-pr);color:var(--t-pr)}
+.entry{background:var(--s2);border:0.5px solid var(--bs);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;margin-top:2px}
+.abl{background:var(--bg-acc);color:var(--t-acc)}.agn{background:var(--bg-ok);color:var(--t-ok)}
+.aam{background:var(--bg-wn);color:var(--t-wn)}.apr{background:var(--bg-pr);color:var(--t-pr)}.ard{background:var(--bg-er);color:var(--t-er)}
+.eb{flex:1;min-width:0}
+.eh{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.en{font-weight:500;font-size:13px}.etm{font-size:11px;color:var(--tm)}
+.etxt{font-size:13px;color:var(--ts);line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.ea{display:flex;gap:6px;margin-top:8px;opacity:0;transition:opacity .12s}.entry:hover .ea{opacity:1}
+.task{background:var(--s2);border:0.5px solid var(--bs);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.task.done .ttxt{text-decoration:line-through;color:var(--tm)}
+.tcb{width:18px;height:18px;border:1.5px solid var(--bs);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.tcb.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.tbod{flex:1}.ttxt{font-size:13px;color:var(--ts)}
+.tmeta{font-size:11px;color:var(--tm);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.ta{display:flex;gap:6px;margin-left:auto;opacity:0;transition:opacity .12s}.task:hover .ta{opacity:1}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-bottom:14px}
+.mcard{background:var(--s2);border:0.5px solid var(--bs);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:border-color .1s}
+.mcard:hover{border-color:var(--acc)}.mname{font-size:13px;font-weight:500;margin-bottom:4px}
+.pbar{height:4px;background:var(--s1);border-radius:2px;margin-top:6px;overflow:hidden}
+.pfill{height:100%;border-radius:2px;background:var(--acc)}
+.dec{background:var(--s2);border:0.5px solid var(--bs);border-left:3px solid var(--acc);padding:12px 14px;margin-bottom:8px;border-radius:0 var(--r) var(--r) 0}
+.dt{font-size:13px;font-weight:500;margin-bottom:4px}
+.dtxt{font-size:13px;color:var(--ts);line-height:1.6}
+.dm{font-size:11px;color:var(--tm);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal{background:var(--s2);border-radius:12px;border:0.5px solid var(--bs);padding:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
+.fa{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:14px;border-top:0.5px solid var(--border)}
+.hidden{display:none!important}
+.empty{text-align:center;padding:40px;color:var(--tm);font-size:13px}
+.empty i{font-size:32px;display:block;margin-bottom:10px;opacity:.4}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup-screen">
+  <div class="setup-box">
+    <h2><i class="ti ti-cloud" style="vertical-align:-3px;margin-right:6px;color:var(--acc)"></i>Configurar log compartilhado</h2>
+    <p>O log usa o <strong>JSONBin.io</strong> como banco de dados na nuvem — gratuito, sem instalar nada. Toda a equipe vê as mesmas entradas em tempo real.</p>
+    <div class="step"><div class="step-num">PASSO 1 — Criar conta</div><div style="font-size:13px;color:var(--ts)">Acesse <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → <strong>Sign Up</strong> → crie com e-mail e senha.</div></div>
+    <div class="step"><div class="step-num">PASSO 2 — Copiar a API Key</div><div style="font-size:13px;color:var(--ts)">No painel → <strong>API Keys</strong> → copie a chave que começa com <code>$2b$...</code></div></div>
+    <div class="step"><div class="step-num">PASSO 3 — Criar o Bin</div><div style="font-size:13px;color:var(--ts)">Clique em <strong>Create a Bin</strong> → cole o JSON abaixo → <strong>Create</strong>:<br><code style="display:block;margin-top:6px;padding:6px;background:var(--bg);border-radius:4px">{"logs":[],"tarefas":[],"decisoes":[],"equipe":[],"modulos":[]}</code></div></div>
+    <div class="step"><div class="step-num">PASSO 4 — Copiar o Bin ID</div><div style="font-size:13px;color:var(--ts)">A URL do bin termina com o ID: <code>https://api.jsonbin.io/v3/b/<strong>SEU_ID_AQUI</strong></code></div></div>
+    <div class="fr fr2" style="margin-top:16px;margin-bottom:10px">
+      <div><label>API Key *</label><input id="cfg-k" placeholder="$2b$10$..." type="password"></div>
+      <div><label>Bin ID *</label><input id="cfg-b" placeholder="64abc123def456..."></div>
+    </div>
+    <div class="fr fr2" style="margin-bottom:0">
+      <div><label>Seu nome *</label><input id="cfg-n" placeholder="Como aparecer no log"></div>
+      <div><label>Papel no projeto</label>
+        <select id="cfg-p"><option>Gestor do projeto</option><option>Desenvolvedor backend</option><option>Desenvolvedor frontend</option><option>Analista de negócio</option><option>Comercial</option><option>Financeiro</option><option>QA / Testes</option></select>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+      <span id="cfg-err" style="font-size:12px;color:var(--t-er)"></span>
+      <button class="btn btn-p" onclick="configurar()"><i class="ti ti-check"></i> Conectar e entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="wrap">
+  <div class="header">
+    <div><h1><i class="ti ti-git-branch" style="vertical-align:-3px;margin-right:6px;color:var(--acc)"></i>Log do Projeto — Sistema de Contratos</h1>
+      <div class="header-sub" id="hsub"></div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div id="uchip" style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ts)"></div>
+      <button class="btn btn-sm" onclick="showOv('ov-cfg')"><i class="ti ti-settings"></i></button>
+    </div>
+  </div>
+  <div class="sync-bar">
+    <div class="sd ok" id="sddot"></div>
+    <span id="sdmsg">Sincronizado</span>
+    <button class="btn btn-sm" style="margin-left:auto" onclick="syncData()"><i class="ti ti-refresh"></i> Atualizar</button>
+  </div>
+  <div class="tabs">
+    <div class="tab on" onclick="goTab('log',this)"><i class="ti ti-message-circle" style="vertical-align:-2px;margin-right:4px"></i>Log</div>
+    <div class="tab" onclick="goTab('tarefas',this)"><i class="ti ti-check" style="vertical-align:-2px;margin-right:4px"></i>Tarefas <span id="bdgt" class="badge bam" style="margin-left:3px;display:none"></span></div>
+    <div class="tab" onclick="goTab('modulos',this)"><i class="ti ti-layout-grid" style="vertical-align:-2px;margin-right:4px"></i>Módulos</div>
+    <div class="tab" onclick="goTab('decisoes',this)"><i class="ti ti-bulb" style="vertical-align:-2px;margin-right:4px"></i>Decisões</div>
+    <div class="tab" onclick="goTab('equipe',this)"><i class="ti ti-users" style="vertical-align:-2px;margin-right:4px"></i>Equipe</div>
+  </div>
+
+  <!-- LOG -->
+  <div class="page on" id="page-log">
+    <div class="card" style="margin-bottom:12px">
+      <div class="fr"><label>Nova entrada</label><textarea id="ltxt" placeholder="Progresso, decisão, dúvida, impedimento..." rows="2"></textarea></div>
+      <div class="fr fr3">
+        <div><label>Módulo</label><select id="lmod"><option value="">Geral</option><option>01 — Clientes</option><option>02 — Contratos</option><option>03 — Produtos</option><option>04 — Reajustes</option><option>05 — Faturamento</option><option>06 — Validação IA</option><option>Infraestrutura</option><option>Reunião</option></select></div>
+        <div><label>Tipo</label><select id="ltipo"><option value="progresso">Progresso</option><option value="decisao">Decisão</option><option value="duvida">Dúvida</option><option value="impedimento">Impedimento</option><option value="reuniao">Reunião</option><option value="outro">Outro</option></select></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn btn-p" style="width:100%" onclick="addLog()"><i class="ti ti-send"></i> Registrar</button></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap" id="lfiltros">
+      <button class="btn btn-sm btn-p" data-f="" onclick="setLF(this,'')">Todos</button>
+      <button class="btn btn-sm" data-f="progresso" onclick="setLF(this,'progresso')">Progresso</button>
+      <button class="btn btn-sm" data-f="decisao" onclick="setLF(this,'decisao')">Decisão</button>
+      <button class="btn btn-sm" data-f="duvida" onclick="setLF(this,'duvida')">Dúvida</button>
+      <button class="btn btn-sm" data-f="impedimento" onclick="setLF(this,'impedimento')">Impedimento</button>
+    </div>
+    <div id="llist"></div>
+  </div>
+
+  <!-- TAREFAS -->
+  <div class="page" id="page-tarefas">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-p" data-tf="todas" onclick="setTF(this,'todas')">Todas</button>
+        <button class="btn btn-sm" data-tf="pendente" onclick="setTF(this,'pendente')">Pendentes</button>
+        <button class="btn btn-sm" data-tf="feita" onclick="setTF(this,'feita')">Concluídas</button>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="showOv('ov-tar')"><i class="ti ti-plus"></i> Nova tarefa</button>
+    </div>
+    <div id="tlist"></div>
+  </div>
+
+  <!-- MÓDULOS -->
+  <div class="page" id="page-modulos">
+    <div class="mgrid" id="mgrid"></div>
+    <div class="card hidden" id="mdet"><div id="mdetc"></div></div>
+  </div>
+
+  <!-- DECISÕES -->
+  <div class="page" id="page-decisoes">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-p btn-sm" onclick="showOv('ov-dec')"><i class="ti ti-plus"></i> Registrar decisão</button>
+    </div>
+    <div id="dlist"></div>
+  </div>
+
+  <!-- EQUIPE -->
+  <div class="page" id="page-equipe">
+    <div class="card" style="margin-bottom:14px"><div class="ct">Membros do projeto</div><div id="eqlist"></div></div>
+    <div class="card">
+      <div class="ct">Adicionar membro</div>
+      <div class="fr fr2">
+        <div><label>Nome</label><input id="eqn" placeholder="Nome completo"></div>
+        <div><label>Papel</label><select id="eqp"><option>Gestor do projeto</option><option>Desenvolvedor backend</option><option>Desenvolvedor frontend</option><option>Analista de negócio</option><option>Comercial</option><option>Financeiro</option><option>QA / Testes</option></select></div>
+      </div>
+      <div class="fr"><label>E-mail</label><input id="eqe" placeholder="email@empresa.com.br" type="email"></div>
+      <div class="fa"><button class="btn btn-p" onclick="addMembro()"><i class="ti ti-user-plus"></i> Adicionar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAIS -->
+<div class="ov hidden" id="ov-cfg">
+  <div class="modal">
+    <h2>Configurações</h2>
+    <div class="fr fr2">
+      <div><label>Seu nome</label><input id="pn" placeholder="Nome"></div>
+      <div><label>Papel</label><select id="pp"><option>Gestor do projeto</option><option>Desenvolvedor backend</option><option>Desenvolvedor frontend</option><option>Analista de negócio</option><option>Comercial</option><option>Financeiro</option><option>QA / Testes</option></select></div>
+    </div>
+    <div class="fr fr2">
+      <div><label>API Key JSONBin</label><input id="pk" type="password" placeholder="$2b$10$..."></div>
+      <div><label>Bin ID</label><input id="pb" placeholder="64abc123..."></div>
+    </div>
+    <div class="fa">
+      <button class="btn" onclick="hideOv('ov-cfg')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarCfg()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov hidden" id="ov-tar">
+  <div class="modal">
+    <h2>Nova tarefa</h2>
+    <div class="fr"><label>Descrição *</label><textarea id="ttxt" placeholder="O que precisa ser feito?" rows="2"></textarea></div>
+    <div class="fr fr3">
+      <div><label>Responsável</label><input id="tresp" placeholder="Nome"></div>
+      <div><label>Módulo</label><select id="tmod"><option value="">Geral</option><option>01 — Clientes</option><option>02 — Contratos</option><option>03 — Produtos</option><option>04 — Reajustes</option><option>05 — Faturamento</option><option>06 — Validação IA</option><option>Infraestrutura</option></select></div>
+      <div><label>Prioridade</label><select id="tprior"><option value="normal">Normal</option><option value="alta">Alta</option><option value="baixa">Baixa</option></select></div>
+    </div>
+    <div class="fr"><label>Data limite</label><input id="tdata" type="date"></div>
+    <div class="fa">
+      <button class="btn" onclick="hideOv('ov-tar')">Cancelar</button>
+      <button class="btn btn-p" onclick="addTarefa()"><i class="ti ti-plus"></i> Criar</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov hidden" id="ov-dec">
+  <div class="modal">
+    <h2>Registrar decisão</h2>
+    <div class="fr"><label>Título *</label><input id="dtit" placeholder="Ex: Usar INPC como índice padrão"></div>
+    <div class="fr"><label>Contexto e justificativa *</label><textarea id="dtxt" placeholder="Por que esta decisão foi tomada?" rows="3"></textarea></div>
+    <div class="fr fr2">
+      <div><label>Módulo</label><select id="dmod"><option value="">Geral</option><option>01 — Clientes</option><option>02 — Contratos</option><option>03 — Produtos</option><option>04 — Reajustes</option><option>05 — Faturamento</option><option>06 — Validação IA</option><option>Arquitetura</option></select></div>
+      <div><label>Impacto</label><select id="dimp"><option value="baixo">Baixo</option><option value="medio" selected>Médio</option><option value="alto">Alto</option></select></div>
+    </div>
+    <div class="fa">
+      <button class="btn" onclick="hideOv('ov-dec')">Cancelar</button>
+      <button class="btn btn-p" onclick="addDecisao()"><i class="ti ti-check"></i> Registrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LKEY='proj_cfg_v3';
+let CFG={apikey:'',binid:'',nome:'',papel:'Gestor do projeto'};
+let D={logs:[],tarefas:[],decisoes:[],equipe:[],modulos:[]};
+let lF='',tF='todas',syncing=false;
+const MDEF=[
+  {id:'m01',nome:'01 — Clientes',status:'concluido',pct:100,obs:''},
+  {id:'m02',nome:'02 — Contratos',status:'concluido',pct:100,obs:''},
+  {id:'m03',nome:'03 — Produtos',status:'concluido',pct:100,obs:''},
+  {id:'m04',nome:'04 — Reajustes',status:'concluido',pct:100,obs:''},
+  {id:'m05',nome:'05 — Faturamento',status:'concluido',pct:100,obs:''},
+  {id:'m06',nome:'06 — Validação IA',status:'concluido',pct:100,obs:''},
+  {id:'m07',nome:'Banco de dados',status:'em_andamento',pct:60,obs:''},
+  {id:'m08',nome:'Infraestrutura',status:'nao_iniciado',pct:0,obs:''},
+  {id:'m09',nome:'Autenticação',status:'nao_iniciado',pct:0,obs:''},
+  {id:'m10',nome:'Testes',status:'nao_iniciado',pct:0,obs:''},
+];
+const TB={progresso:'<span class="badge bgn">Progresso</span>',decisao:'<span class="badge bbl">Decisão</span>',duvida:'<span class="badge bam">Dúvida</span>',impedimento:'<span class="badge brd">Impedimento</span>',reuniao:'<span class="badge bpr">Reunião</span>',outro:'<span class="badge bgy">Outro</span>'};
+const PB={alta:'<span class="badge brd">Alta</span>',normal:'<span class="badge bbl">Normal</span>',baixa:'<span class="badge bgy">Baixa</span>'};
+const MS={concluido:{l:'Concluído',c:'bgn'},em_andamento:{l:'Em andamento',c:'bam'},nao_iniciado:{l:'Não iniciado',c:'bgy'},bloqueado:{l:'Bloqueado',c:'brd'}};
+const IB={alto:'brd',medio:'bam',baixo:'bgy'};
+const AVC=['abl','agn','aam','apr','ard'];
+function avc(n){return AVC[(n||'').length%AVC.length];}
+function ini(n){return(n||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtTs(ts){const d=new Date(ts);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function fmtD(s){if(!s)return'';const[a,m,d]=s.split('-');return`${d}/${m}/${a}`;}
+function v(id){return document.getElementById(id);}
+
+async function apiGet(){
+  const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.binid}/latest`,{headers:{'X-Access-Key':CFG.apikey,'X-Bin-Meta':'false'}});
+  if(!r.ok)throw new Error(r.status);
+  const j=await r.json(); return j.record||j;
+}
+async function apiPut(data){
+  const r=await fetch(`https://api.jsonbin.io/v3/b/${CFG.binid}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Access-Key':CFG.apikey},body:JSON.stringify(data)});
+  if(!r.ok)throw new Error(r.status);
+}
+function setSS(s,msg){v('sddot').className='sd '+s;v('sdmsg').textContent=msg;}
+async function syncData(){
+  if(syncing)return;syncing=true;
+  setSS('sy','Sincronizando...');
+  try{
+    const raw=await apiGet();
+    D=raw;
+    if(!D.modulos||!D.modulos.length)D.modulos=MDEF;
+    ['logs','tarefas','decisoes','equipe'].forEach(k=>{if(!D[k])D[k]=[];});
+    renderAll();
+    setSS('ok','Sincronizado · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){setSS('er','Erro de conexão ('+e.message+')');}
+  syncing=false;
+}
+async function save(){
+  setSS('sy','Salvando...');
+  try{await apiPut(D);setSS('ok','Salvo · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));}
+  catch(e){setSS('er','Erro ao salvar — verifique API Key e Bin ID');}
+}
+function loadCfg(){try{const s=localStorage.getItem(LKEY);if(s)CFG=JSON.parse(s);}catch(e){}}
+function saveCfg(){localStorage.setItem(LKEY,JSON.stringify(CFG));}
+function configurar(){
+  const k=v('cfg-k').value.trim(),b=v('cfg-b').value.trim(),n=v('cfg-n').value.trim();
+  if(!k||!b||!n){v('cfg-err').textContent='Preencha todos os campos.';return;}
+  CFG={apikey:k,binid:b,nome:n,papel:v('cfg-p').value};
+  saveCfg();v('setup-screen').classList.add('hidden');
+  renderChip();syncData();setInterval(()=>syncData(true),30000);
+}
+function salvarCfg(){
+  if(v('pn').value.trim())CFG.nome=v('pn').value.trim();
+  CFG.papel=v('pp').value;
+  if(v('pk').value.trim())CFG.apikey=v('pk').value.trim();
+  if(v('pb').value.trim())CFG.binid=v('pb').value.trim();
+  saveCfg();renderChip();hideOv('ov-cfg');syncData();
+}
+function renderChip(){
+  v('uchip').innerHTML=`<div class="av ${avc(CFG.nome)}" style="width:28px;height:28px;font-size:11px">${ini(CFG.nome)}</div><span style="font-size:13px;font-weight:500">${esc(CFG.nome)}</span>`;
+  v('hsub').textContent=`${CFG.papel} · ${D.logs.length} entr. · auto-refresh 30s`;
+  v('pn').value=CFG.nome;v('pp').value=CFG.papel;v('pk').value='';v('pb').value='';
+}
+function goTab(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  v('page-'+id).classList.add('on');el.classList.add('on');
+}
+function showOv(id){v(id).classList.remove('hidden');}
+function hideOv(id){v(id).classList.add('hidden');}
+document.querySelectorAll('.ov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden');});});
+
+async function addLog(){
+  const txt=v('ltxt').value.trim();
+  if(!txt){alert('Escreva algo no log.');return;}
+  D.logs.unshift({id:Date.now(),autor:CFG.nome,papel:CFG.papel,tipo:v('ltipo').value,modulo:v('lmod').value,texto:txt,ts:Date.now()});
+  v('ltxt').value='';renderLog();await save();
+  v('hsub').textContent=`${CFG.papel} · ${D.logs.length} entr. · auto-refresh 30s`;
+}
+async function delLog(id){if(!confirm('Remover?'))return;D.logs=D.logs.filter(l=>l.id!==id);renderLog();await save();}
+function setLF(el,f){lF=f;document.querySelectorAll('#lfiltros .btn').forEach(b=>b.classList.toggle('btn-p',b.dataset.f===f));renderLog();}
+function renderLog(){
+  const lista=lF?D.logs.filter(l=>l.tipo===lF):D.logs;
+  const el=v('llist');
+  if(!lista.length){el.innerHTML='<div class="empty"><i class="ti ti-message-circle"></i>Nenhuma entrada ainda.</div>';return;}
+  el.innerHTML=lista.map(l=>`<div class="entry"><div class="av ${avc(l.autor)}">${ini(l.autor)}</div><div class="eb"><div class="eh"><span class="en">${esc(l.autor)}</span><span class="etm">${esc(l.papel||'')}</span>${TB[l.tipo]||''}${l.modulo?`<span class="badge bgy">${esc(l.modulo)}</span>`:''}<span class="etm" style="margin-left:auto">${fmtTs(l.ts)}</span></div><div class="etxt">${esc(l.texto)}</div><div class="ea"><button class="btn btn-sm btn-d" onclick="delLog(${l.id})"><i class="ti ti-trash"></i> Remover</button></div></div></div>`).join('');
+}
+
+async function addTarefa(){
+  const txt=v('ttxt').value.trim();if(!txt){alert('Descreva a tarefa.');return;}
+  D.tarefas.unshift({id:Date.now(),texto:txt,resp:v('tresp').value.trim(),modulo:v('tmod').value,prior:v('tprior').value,data:v('tdata').value,feita:false,ts:Date.now(),autor:CFG.nome});
+  ['ttxt','tresp','tdata'].forEach(i=>v(i).value='');renderTarefas();hideOv('ov-tar');await save();
+}
+async function toggleT(id){const t=D.tarefas.find(x=>x.id===id);if(t){t.feita=!t.feita;renderTarefas();await save();}}
+async function delTarefa(id){if(!confirm('Remover?'))return;D.tarefas=D.tarefas.filter(x=>x.id!==id);renderTarefas();await save();}
+function setTF(el,f){tF=f;document.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('btn-p',b.dataset.tf===f));renderTarefas();}
+function renderBdgT(){const p=D.tarefas.filter(t=>!t.feita).length;const el=v('bdgt');el.textContent=p||'';el.style.display=p?'':'none';}
+function renderTarefas(){
+  let lista=D.tarefas;
+  if(tF==='pendente')lista=lista.filter(t=>!t.feita);
+  if(tF==='feita')lista=lista.filter(t=>t.feita);
+  const el=v('tlist');
+  if(!lista.length){el.innerHTML='<div class="empty"><i class="ti ti-check"></i>Nenhuma tarefa.</div>';return;}
+  el.innerHTML=lista.map(t=>`<div class="task ${t.feita?'done':''}"><div class="tcb ${t.feita?'on':''}" onclick="toggleT(${t.id})">${t.feita?'<i class="ti ti-check" style="font-size:12px"></i>':''}</div><div class="tbod"><div class="ttxt">${esc(t.texto)}</div><div class="tmeta">${t.resp?`<span><i class="ti ti-user" style="vertical-align:-2px"></i> ${esc(t.resp)}</span>`:''} ${t.modulo?`<span>${esc(t.modulo)}</span>`:''} ${t.data?`<span><i class="ti ti-calendar" style="vertical-align:-2px"></i> ${fmtD(t.data)}</span>`:''} ${PB[t.prior]||''} <span style="color:var(--tm)">por ${esc(t.autor||'')}</span></div></div><div class="ta"><button class="btn btn-sm btn-d" onclick="delTarefa(${t.id})"><i class="ti ti-trash"></i></button></div></div>`).join('');
+  renderBdgT();
+}
+
+function renderModulos(){
+  v('mgrid').innerHTML=D.modulos.map(m=>`<div class="mcard" onclick="verMod('${m.id}')"><div class="mname">${esc(m.nome)}</div><span class="badge ${MS[m.status]?.c||'bgy'}">${MS[m.status]?.l||m.status}</span><div class="pbar"><div class="pfill" style="width:${m.pct}%"></div></div><div style="font-size:11px;color:var(--tm);margin-top:4px;text-align:right">${m.pct}%</div></div>`).join('');
+}
+function verMod(id){
+  const m=D.modulos.find(x=>x.id===id);
+  v('mdet').classList.remove('hidden');
+  v('mdetc').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div><div style="font-size:15px;font-weight:500">${esc(m.nome)}</div><span class="badge ${MS[m.status]?.c||'bgy'}" style="margin-top:4px">${MS[m.status]?.l||m.status}</span></div><button class="btn btn-sm" onclick="v('mdet').classList.add('hidden')"><i class="ti ti-x"></i></button></div><div class="fr fr2"><div><label>Status</label><select onchange="updMod('${id}','status',this.value)"><option value="nao_iniciado" ${m.status==='nao_iniciado'?'selected':''}>Não iniciado</option><option value="em_andamento" ${m.status==='em_andamento'?'selected':''}>Em andamento</option><option value="concluido" ${m.status==='concluido'?'selected':''}>Concluído</option><option value="bloqueado" ${m.status==='bloqueado'?'selected':''}>Bloqueado</option></select></div><div><label id="lp${id}">Progresso: ${m.pct}%</label><input type="range" min="0" max="100" value="${m.pct}" step="5" oninput="v('lp${id}').textContent='Progresso: '+this.value+'%';updMod('${id}','pct',+this.value)"></div></div><div class="fr"><label>Observações</label><textarea rows="2" placeholder="Notas, próximos passos..." onblur="updMod('${id}','obs',this.value)">${esc(m.obs||'')}</textarea></div>`;
+}
+async function updMod(id,k,val){const m=D.modulos.find(x=>x.id===id);if(m){m[k]=val;renderModulos();await save();}}
+
+async function addDecisao(){
+  const tit=v('dtit').value.trim(),txt=v('dtxt').value.trim();
+  if(!tit||!txt){alert('Preencha título e contexto.');return;}
+  D.decisoes.unshift({id:Date.now(),titulo:tit,texto:txt,modulo:v('dmod').value,impacto:v('dimp').value,autor:CFG.nome,ts:Date.now()});
+  v('dtit').value='';v('dtxt').value='';renderDecisoes();hideOv('ov-dec');await save();
+}
+async function delDecisao(id){if(!confirm('Remover?'))return;D.decisoes=D.decisoes.filter(d=>d.id!==id);renderDecisoes();await save();}
+function renderDecisoes(){
+  const el=v('dlist');
+  if(!D.decisoes.length){el.innerHTML='<div class="empty"><i class="ti ti-bulb"></i>Nenhuma decisão.</div>';return;}
+  el.innerHTML=D.decisoes.map(d=>`<div class="dec"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="dt">${esc(d.titulo)}</div><div style="display:flex;gap:6px;margin-left:10px;flex-shrink:0">${d.impacto?`<span class="badge ${IB[d.impacto]||'bgy'}">Impacto ${d.impacto}</span>`:''}<button class="btn btn-sm btn-d" onclick="delDecisao(${d.id})"><i class="ti ti-trash"></i></button></div></div><div class="dtxt" style="margin-top:5px">${esc(d.texto)}</div><div class="dm">${d.autor?`<span><i class="ti ti-user" style="vertical-align:-2px"></i> ${esc(d.autor)}</span>`:''} ${d.modulo?`<span>${esc(d.modulo)}</span>`:''} <span>${fmtTs(d.ts)}</span></div></div>`).join('');
+}
+
+async function addMembro(){
+  const nome=v('eqn').value.trim();if(!nome){alert('Informe o nome.');return;}
+  D.equipe.push({id:Date.now(),nome,papel:v('eqp').value,email:v('eqe').value.trim()});
+  v('eqn').value='';v('eqe').value='';renderEquipe();await save();
+}
+async function delMembro(id){D.equipe=D.equipe.filter(e=>e.id!==id);renderEquipe();await save();}
+function renderEquipe(){
+  const el=v('eqlist');
+  if(!D.equipe.length){el.innerHTML='<div class="empty" style="padding:16px"><i class="ti ti-users"></i>Nenhum membro.</div>';return;}
+  el.innerHTML=D.equipe.map(m=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)"><div class="av ${avc(m.nome)}">${ini(m.nome)}</div><div style="flex:1"><div style="font-weight:500;font-size:13px">${esc(m.nome)}</div><div style="font-size:12px;color:var(--tm)">${esc(m.papel)}${m.email?' · '+esc(m.email):''}</div></div><button class="btn btn-sm btn-d" onclick="delMembro(${m.id})"><i class="ti ti-trash"></i></button></div>`).join('');
+}
+function renderAll(){renderLog();renderTarefas();renderModulos();renderDecisoes();renderEquipe();renderBdgT();renderChip();}
+
+loadCfg();
+if(CFG.apikey&&CFG.binid&&CFG.nome){
+  v('setup-screen').classList.add('hidden');
+  syncData();setInterval(()=>syncData(true),30000);
+} else {
+  if(CFG.nome)v('cfg-n').value=CFG.nome;
+}
+</script>
+</body>
+</html>

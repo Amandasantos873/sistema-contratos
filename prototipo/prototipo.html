@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Gestão — Protótipo Completo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F5F3;--s1:#EEEEE9;--s2:#fff;
+  --border:rgba(0,0,0,0.08);--bs:rgba(0,0,0,0.16);
+  --tp:#1a1a18;--ts:#4a4a45;--tm:#888780;--r:8px;
+  --acc:#185FA5;--bg-acc:#E6F1FB;--t-acc:#185FA5;
+  --bg-ok:#DCFCE7;--t-ok:#15803D;
+  --bg-wn:#FEF3C7;--t-wn:#92400E;
+  --bg-er:#FEE2E2;--t-er:#B91C1C;
+  --bg-pr:#EDE9FE;--t-pr:#5B21B6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tp);font-size:13px;height:100vh;overflow:hidden}
+.app{display:flex;height:100vh}
+.nav{width:210px;background:var(--s1);border-right:0.5px solid var(--bs);display:flex;flex-direction:column;padding:12px 8px;gap:1px;flex-shrink:0;overflow-y:auto}
+.logo{padding:8px 10px 14px;border-bottom:0.5px solid var(--bs);margin-bottom:8px}
+.logo-name{font-size:14px;font-weight:500;color:var(--tp)}
+.logo-sub{font-size:11px;color:var(--tm);margin-top:2px}
+.nav-sec{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;padding:10px 10px 3px}
+.ni{padding:7px 10px;border-radius:var(--r);font-size:12px;color:var(--ts);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s;user-select:none}
+.ni:hover{background:var(--s2)}.ni.on{background:var(--bg-acc);color:var(--t-acc);font-weight:500}
+.ni i{font-size:15px;flex-shrink:0}
+.nb{margin-left:auto;background:var(--bg-er);color:var(--t-er);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:11px 22px;border-bottom:0.5px solid var(--bs);background:var(--s2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar h1{font-size:15px;font-weight:500}.topbar p{font-size:11px;color:var(--tm);margin-top:2px}
+.content{flex:1;overflow-y:auto;padding:20px 22px}
+.page{display:none;flex-direction:column;gap:14px}.page.on{display:flex}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.metric{background:var(--s1);border-radius:var(--r);padding:12px 14px}
+.ml{font-size:10px;color:var(--tm);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.mv{font-size:20px;font-weight:500}
+.ms{font-size:11px;margin-top:2px;color:var(--tm)}
+.card{background:var(--s2);border:0.5px solid var(--bs);border-radius:12px;padding:14px 16px}
+.card-title{font-size:13px;font-weight:500;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--s1);border-bottom:0.5px solid var(--bs)}
+th{padding:8px 12px;text-align:left;font-weight:500;font-size:11px;color:var(--tm);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+td{padding:9px 12px;border-bottom:0.5px solid var(--border);color:var(--ts)}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--s1)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;white-space:nowrap}
+.bgn{background:var(--bg-ok);color:var(--t-ok)}.bbl{background:var(--bg-acc);color:var(--t-acc)}
+.bam{background:var(--bg-wn);color:var(--t-wn)}.brd{background:var(--bg-er);color:var(--t-er)}
+.bgy{background:var(--s1);color:var(--tm);border:0.5px solid var(--bs)}.bpr{background:var(--bg-pr);color:var(--t-pr)}
+.al{border-radius:var(--r);padding:10px 13px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.al-cr{background:var(--bg-er);border:0.5px solid #FECACA}.al-wn{background:var(--bg-wn);border:0.5px solid #FDE68A}
+.al-code{font-size:10px;font-weight:600;font-family:monospace;min-width:50px;margin-top:1px}
+.al-body{flex:1;font-size:12px;color:var(--ts)}
+.pbar{height:5px;background:var(--s1);border-radius:3px;overflow:hidden;margin-top:5px}
+.pfill{height:100%;border-radius:3px}
+.mono{font-family:'SF Mono','Fira Mono',monospace;font-size:11px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
+.dg{background:#22c55e}.da{background:#f59e0b}.dr{background:#ef4444}.db{background:#3b82f6}.dp{background:#8b5cf6}
+.tabs{display:flex;border-bottom:0.5px solid var(--bs);margin-bottom:14px;gap:0}
+.tab{padding:8px 14px;font-size:12px;color:var(--tm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-.5px}
+.tab.on{color:var(--t-acc);border-bottom-color:var(--acc);font-weight:500}
+.tbl-wrap{background:var(--s2);border:0.5px solid var(--bs);border-radius:12px;overflow:hidden}
+.row-hi td{background:#FFFBEB!important}.row-er td{background:#FFF5F5!important}
+.btn{padding:6px 12px;border-radius:var(--r);font-size:12px;cursor:pointer;border:0.5px solid var(--bs);background:var(--s2);color:var(--ts);display:inline-flex;align-items:center;gap:4px}
+.btn:hover{background:var(--s1)}.btn-p{background:var(--acc);color:#fff;border-color:var(--acc)}.btn-p:hover{opacity:.9}
+.aging-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.aging-card{border-radius:var(--r);padding:10px 12px;cursor:pointer}
+.dre-row{display:flex;align-items:center;padding:7px 14px;border-bottom:0.5px solid var(--border)}
+.dre-row.destaque{background:var(--s1);font-weight:500}
+.dre-row.borda{border-bottom:2px solid var(--bs)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<nav class="nav">
+  <div class="logo"><div class="logo-name"><i class="ti ti-file-certificate" style="color:var(--acc);vertical-align:-2px;margin-right:5px"></i>Contratos</div><div class="logo-sub">Gestão · Financeiro · IA</div></div>
+  <div class="nav-sec">Principal</div>
+  <div class="ni on" data-p="dashboard"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+  <div class="ni" data-p="clientes"><i class="ti ti-users"></i>Clientes</div>
+  <div class="ni" data-p="contratos"><i class="ti ti-file-text"></i>Contratos</div>
+  <div class="nav-sec">Operacional</div>
+  <div class="ni" data-p="faturamento"><i class="ti ti-receipt"></i>Faturamento</div>
+  <div class="ni" data-p="reajustes"><i class="ti ti-trending-up"></i>Reajustes</div>
+  <div class="ni" data-p="golive"><i class="ti ti-rocket"></i>Go-live <span class="nb">2</span></div>
+  <div class="ni" data-p="validacao"><i class="ti ti-shield-check"></i>Validação IA <span class="nb">3</span></div>
+  <div class="nav-sec">Financeiro</div>
+  <div class="ni" data-p="receber"><i class="ti ti-cash"></i>Contas a Receber</div>
+  <div class="ni" data-p="pagar"><i class="ti ti-credit-card"></i>Contas a Pagar</div>
+  <div class="ni" data-p="fluxo"><i class="ti ti-arrows-exchange"></i>Fluxo de Caixa</div>
+  <div class="ni" data-p="dre"><i class="ti ti-chart-bar"></i>DRE Gerencial</div>
+  <div class="ni" data-p="conciliacao"><i class="ti ti-check"></i>Conciliação</div>
+  <div class="ni" data-p="comissoes"><i class="ti ti-star"></i>Comissões</div>
+  <div class="ni" data-p="orcamento"><i class="ti ti-target"></i>Orçamento</div>
+</nav>
+
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="p-dashboard" class="page on">
+  <div class="topbar"><div><h1>Dashboard</h1><p>Visão geral · junho/2026</p></div></div>
+  <div class="content">
+    <div class="g4">
+      <div class="metric"><div class="ml">Clientes ativos</div><div class="mv">6</div><div class="ms" style="color:var(--t-ok)">↑ 2 novos este mês</div></div>
+      <div class="metric"><div class="ml">Faturamento jun/26</div><div class="mv">R$ 38,5k</div><div class="ms" style="color:var(--t-ok)">↑ 4,5% vs mai/26</div></div>
+      <div class="metric"><div class="ml">A receber em aberto</div><div class="mv" style="color:var(--t-wn)">R$ 21,4k</div><div class="ms">3 cobranças pendentes</div></div>
+      <div class="metric"><div class="ml">Resultado jun/26</div><div class="mv" style="color:var(--t-ok)">R$ 12,1k</div><div class="ms">Margem 31,4%</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Receita por modalidade</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ts);margin-bottom:2px"><span><span class="dot db"></span>ASP</span><span>R$ 16,1k/mês</span></div><div class="pbar"><div class="pfill" style="width:42%;background:#3b82f6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ts);margin-bottom:2px"><span><span class="dot dp"></span>BSP</span><span>R$ 12,2k/mês</span></div><div class="pbar"><div class="pfill" style="width:32%;background:#8b5cf6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ts);margin-bottom:2px"><span><span class="dot da"></span>BPO</span><span>R$ 17,5k/mês</span></div><div class="pbar"><div class="pfill" style="width:46%;background:#f59e0b"></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Alertas em aberto</div>
+        <div class="al al-cr"><span class="al-code" style="color:var(--t-er)">VAL001</span><div class="al-body"><strong>FAT-2026-00006</strong> — Valor incorreto: R$ 4.500 vs R$ 5.200</div></div>
+        <div class="al al-cr"><span class="al-code" style="color:var(--t-er)">VAL008</span><div class="al-body"><strong>FAT-2026-00006</strong> — Aviso prévio vencido há 15 dias</div></div>
+        <div class="al al-wn"><span class="al-code" style="color:var(--t-wn)">VAL005</span><div class="al-body"><strong>CTR-2024-0004</strong> — Contrato vence em 25 dias</div></div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="metric"><div class="ml">Despesas jun/26</div><div class="mv">R$ 26,4k</div></div>
+      <div class="metric"><div class="ml">Orçamento atingido</div><div class="mv">76,3%</div><div class="ms">Meta: R$ 50k</div></div>
+      <div class="metric"><div class="ml">Conciliação pendente</div><div class="mv" style="color:var(--t-wn)">8</div><div class="ms">lançamentos</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENTES -->
+<div id="p-clientes" class="page">
+  <div class="topbar"><div><h1>Clientes</h1><p>6 cadastrados</p></div></div>
+  <div class="content">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Segmento</th><th>Porte</th><th>Contratos</th><th>Contato financeiro</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Horizonte Tech</strong><br><span class="mono" style="color:var(--tm)">11.222.333/0001-81</span></td><td>Tecnologia</td><td>Grande</td><td><span class="badge bbl">2</span></td><td>Ricardo Almeida</td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr><td><strong>FarmaNacional</strong><br><span class="mono" style="color:var(--tm)">22.333.444/0001-95</span></td><td>Saúde</td><td>Médio</td><td><span class="badge bbl">1</span></td><td>Mariana Souza</td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr><td><strong>Vale Verde</strong><br><span class="mono" style="color:var(--tm)">33.444.555/0001-08</span></td><td>Construção</td><td>Grande</td><td><span class="badge bbl">1</span></td><td>Gustavo Pires</td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr><td><strong>Campos Gerais</strong><br><span class="mono" style="color:var(--tm)">44.555.666/0001-61</span></td><td>Agronegócio</td><td>Médio</td><td><span class="badge bam">1 impl.</span></td><td>Rodrigo Campos</td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr><td><strong>Aprender Mais</strong><br><span class="mono" style="color:var(--tm)">55.666.777/0001-72</span></td><td>Educação</td><td>Pequeno</td><td><span class="badge bbl">1</span></td><td>Juliana Martins</td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr class="row-er"><td><strong>ConectaShop</strong><br><span class="mono" style="color:var(--tm)">66.777.888/0001-83</span></td><td>Varejo</td><td>Pequeno</td><td><span class="badge bbl">1</span></td><td>Tiago Oliveira</td><td><span class="badge brd">Inadimplente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRATOS -->
+<div id="p-contratos" class="page">
+  <div class="topbar"><div><h1>Contratos</h1><p>7 contratos · R$ 45,8k/mês</p></div></div>
+  <div class="content">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Número</th><th>Cliente</th><th>Mod.</th><th>Dia fat.</th><th>Mensalidade</th><th>Fim</th><th>Fase</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">CTR-2024-0001</td><td>Horizonte Tech</td><td><span class="badge bbl">ASP</span></td><td>Dia 25</td><td class="mono">R$ 8.471</td><td>01/03/2026</td><td><span class="badge bgn">Recorrência</span></td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr><td class="mono">CTR-2024-0002</td><td>FarmaNacional</td><td><span class="badge bpr">BSP</span></td><td>Dia 15</td><td class="mono">R$ 8.674</td><td>01/04/2026</td><td><span class="badge bgn">Recorrência</span></td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr><td class="mono">CTR-2024-0003</td><td>Vale Verde</td><td><span class="badge bam">BPO</span></td><td>Dia 25</td><td class="mono">R$ 17.500</td><td>01/06/2027</td><td><span class="badge bgn">Recorrência</span></td><td><span class="badge bgn">Ativo</span></td></tr>
+          <tr class="row-hi"><td class="mono">CTR-2025-0001</td><td>Campos Gerais</td><td><span class="badge bbl">ASP</span></td><td>Dia 25</td><td class="mono" style="color:var(--tm)">—</td><td style="color:var(--tm)">—</td><td><span class="badge bam">Implantação</span></td><td><span class="badge bam">Go-live pend.</span></td></tr>
+          <tr class="row-hi"><td class="mono">CTR-2024-0004</td><td>Aprender Mais</td><td><span class="badge bbl">ASP</span></td><td>Dia 01</td><td class="mono">R$ 2.800</td><td style="color:var(--t-er);font-weight:500">Vence 25d</td><td><span class="badge bgn">Recorrência</span></td><td><span class="badge bam">Atenção</span></td></tr>
+          <tr class="row-er"><td class="mono">CTR-2024-0005</td><td>ConectaShop</td><td><span class="badge bpr">BSP</span></td><td>Dia 15</td><td class="mono">R$ 3.510</td><td>01/10/2025</td><td><span class="badge bgn">Recorrência</span></td><td><span class="badge brd">Inadimplente</span></td></tr>
+          <tr><td class="mono">CTR-2025-0002</td><td>Horizonte Tech</td><td><span class="badge bbl">ASP</span></td><td>Dia 01</td><td class="mono">R$ 1.800</td><td>01/08/2026</td><td><span class="badge bgn">Recorrência</span></td><td><span class="badge bgn">Ativo</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FATURAMENTO -->
+<div id="p-faturamento" class="page">
+  <div class="topbar"><div><h1>Faturamento</h1><p>6 faturas · mai e jun/2026</p></div></div>
+  <div class="content">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="metric"><div class="ml">Total apurado</div><div class="mv">R$ 38,5k</div></div>
+      <div class="metric"><div class="ml">NFs emitidas</div><div class="mv">2</div><div class="ms">K2 Software</div></div>
+      <div class="metric"><div class="ml">Recebido</div><div class="mv" style="color:var(--t-ok)">R$ 8.471</div></div>
+      <div class="metric"><div class="ml">Inadimplência</div><div class="mv" style="color:var(--t-er)">R$ 3.510</div><div class="ms" style="color:var(--t-er)">45 dias</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nº fatura</th><th>Cliente</th><th>Competência</th><th>Vencimento</th><th>Total</th><th>NF</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">FAT-2026-00001</td><td>Horizonte Tech</td><td>Mai/26</td><td>10/06/2026</td><td class="mono">R$ 8.471</td><td style="color:var(--t-ok);font-size:11px">202605001</td><td><span class="badge bgn">Paga</span></td></tr>
+          <tr><td class="mono">FAT-2026-00002</td><td>FarmaNacional</td><td>Mai/26</td><td>30/05/2026</td><td class="mono">R$ 8.674</td><td style="color:var(--t-ok);font-size:11px">202605002</td><td><span class="badge bbl">Emitida</span></td></tr>
+          <tr><td class="mono">FAT-2026-00003</td><td>Vale Verde</td><td>Mai/26</td><td>10/06/2026</td><td class="mono">R$ 19.936</td><td style="color:var(--tm);font-size:11px">Pendente</td><td><span class="badge bam">Apurada</span></td></tr>
+          <tr><td class="mono">FAT-2026-00004</td><td>Aprender Mais</td><td>Mai/26</td><td>20/05/2026</td><td class="mono">R$ 2.800</td><td style="color:var(--t-ok);font-size:11px">202605004</td><td><span class="badge bpr">Enviada</span></td></tr>
+          <tr class="row-er"><td class="mono">FAT-2026-00005</td><td>ConectaShop</td><td>Abr/26</td><td style="color:var(--t-er);font-weight:500">Vencida 45d</td><td class="mono">R$ 3.510</td><td style="color:var(--tm);font-size:11px">—</td><td><span class="badge brd">Inadimplente</span></td></tr>
+          <tr class="row-er"><td class="mono">FAT-2026-00006</td><td>Horizonte Tech</td><td>Jun/26</td><td>10/07/2026</td><td class="mono">R$ 8.941</td><td style="color:var(--tm);font-size:11px">Pendente</td><td><span class="badge brd">Com alerta</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CONTAS A RECEBER -->
+<div id="p-receber" class="page">
+  <div class="topbar"><div><h1>Contas a Receber</h1><p>Aging · Baixas · Negociações</p></div></div>
+  <div class="content">
+    <div class="aging-grid" style="margin-bottom:14px">
+      <div class="aging-card" style="background:var(--bg-ok)"><div style="font-size:10px;color:var(--t-ok);font-weight:500;margin-bottom:3px">A vencer</div><div style="font-size:18px;font-weight:600;color:var(--tp)">3</div><div class="mono" style="color:var(--tm)">R$ 21.474</div></div>
+      <div class="aging-card" style="background:var(--bg-wn)"><div style="font-size:10px;color:var(--t-wn);font-weight:500;margin-bottom:3px">1–30 dias</div><div style="font-size:18px;font-weight:600;color:var(--tp)">1</div><div class="mono" style="color:var(--tm)">R$ 3.510</div></div>
+      <div class="aging-card" style="background:var(--bg-er)"><div style="font-size:10px;color:var(--t-er);font-weight:500;margin-bottom:3px">31–60 dias</div><div style="font-size:18px;font-weight:600;color:var(--tp)">0</div><div class="mono" style="color:var(--tm)">R$ 0</div></div>
+      <div class="aging-card" style="background:var(--bg-er)"><div style="font-size:10px;color:var(--t-er);font-weight:500;margin-bottom:3px">61–90 dias</div><div style="font-size:18px;font-weight:600;color:var(--tp)">0</div><div class="mono" style="color:var(--tm)">R$ 0</div></div>
+      <div class="aging-card" style="background:var(--bg-er)"><div style="font-size:10px;color:var(--t-er);font-weight:500;margin-bottom:3px">+90 dias</div><div style="font-size:18px;font-weight:600;color:var(--tp)">0</div><div class="mono" style="color:var(--tm)">R$ 0</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nº cobrança</th><th>Cliente</th><th>Competência</th><th>Vencimento</th><th>Original</th><th>Saldo</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">COB-2026-00001</td><td>Horizonte Tech</td><td>Mai/26</td><td>10/06/2026</td><td class="mono">R$ 8.471</td><td class="mono" style="color:var(--t-ok)">R$ 0</td><td><span class="badge bgn">Recebida</span></td><td>—</td></tr>
+          <tr><td class="mono">COB-2026-00002</td><td>FarmaNacional</td><td>Mai/26</td><td>30/05/2026</td><td class="mono">R$ 8.674</td><td class="mono" style="color:var(--t-wn)">R$ 8.674</td><td><span class="badge bbl">Aberta</span></td><td><button class="btn" style="font-size:11px">Baixar</button></td></tr>
+          <tr><td class="mono">COB-2026-00003</td><td>Vale Verde</td><td>Mai/26</td><td>10/06/2026</td><td class="mono">R$ 19.936</td><td class="mono" style="color:var(--t-wn)">R$ 19.936</td><td><span class="badge bbl">Aberta</span></td><td><button class="btn" style="font-size:11px">Baixar</button></td></tr>
+          <tr class="row-er"><td class="mono">COB-2026-00005</td><td>ConectaShop</td><td>Abr/26</td><td style="color:var(--t-er)">Vencida 45d</td><td class="mono">R$ 3.510</td><td class="mono" style="color:var(--t-er)">R$ 3.510</td><td><span class="badge brd">Inadimplente</span></td><td><button class="btn" style="font-size:11px;color:var(--t-pr)">Negociar</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CONTAS A PAGAR -->
+<div id="p-pagar" class="page">
+  <div class="topbar"><div><h1>Contas a Pagar</h1><p>Despesas · Aprovações · Pagamentos</p></div></div>
+  <div class="content">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="metric"><div class="ml">Aguard. aprovação</div><div class="mv" style="color:var(--t-wn)">4</div><div class="ms">R$ 12.300</div></div>
+      <div class="metric"><div class="ml">Aprovadas</div><div class="mv" style="color:var(--t-acc)">3</div><div class="ms">R$ 8.750</div></div>
+      <div class="metric"><div class="ml">Pagas no mês</div><div class="mv" style="color:var(--t-ok)">12</div><div class="ms">R$ 26.400</div></div>
+      <div class="metric"><div class="ml">Em atraso</div><div class="mv" style="color:var(--t-er)">1</div><div class="ms">R$ 1.200</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nº</th><th>Descrição</th><th>Categoria</th><th>Centro de Custo</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">DES-2026-00001</td><td>Salários Jun/26</td><td><span class="badge bbl">FOLHA</span></td><td>RH</td><td>05/07/2026</td><td class="mono">R$ 18.500</td><td><span class="badge bam">Aguard. aprovação</span></td><td><button class="btn" style="font-size:11px;color:var(--t-acc)">Aprovar</button></td></tr>
+          <tr><td class="mono">DES-2026-00002</td><td>Plano de Saúde</td><td><span class="badge bpr">BENEFÍCIO</span></td><td>RH</td><td>10/07/2026</td><td class="mono">R$ 3.200</td><td><span class="badge bbl">Aprovada</span></td><td><button class="btn" style="font-size:11px;color:var(--t-ok)">Pagar</button></td></tr>
+          <tr><td class="mono">DES-2026-00003</td><td>ISS Jun/26</td><td><span class="badge brd">IMPOSTO</span></td><td>FIN</td><td>15/07/2026</td><td class="mono">R$ 1.925</td><td><span class="badge bam">Aguard. aprovação</span></td><td><button class="btn" style="font-size:11px;color:var(--t-acc)">Aprovar</button></td></tr>
+          <tr><td class="mono">DES-2026-00004</td><td>Internet e Telefonia</td><td><span class="badge bam">FORNECEDOR</span></td><td>TI</td><td>20/07/2026</td><td class="mono">R$ 890</td><td><span class="badge bgn">Paga</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FLUXO DE CAIXA -->
+<div id="p-fluxo" class="page">
+  <div class="topbar"><div><h1>Fluxo de Caixa</h1><p>Projetado × Realizado</p></div></div>
+  <div class="content">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="metric"><div class="ml">Entradas realizadas</div><div class="mv" style="color:var(--t-ok)">R$ 8.471</div></div>
+      <div class="metric"><div class="ml">Entradas projetadas</div><div class="mv" style="color:var(--t-acc)">R$ 38.474</div></div>
+      <div class="metric"><div class="ml">Saídas realizadas</div><div class="mv" style="color:var(--t-er)">R$ 26.400</div></div>
+      <div class="metric"><div class="ml">Saldo projetado</div><div class="mv" style="color:var(--t-ok)">R$ 12.074</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      {['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago'].forEach}
+      <div class="card" style="cursor:pointer" onclick="this.querySelector('.detalhe').style.display=this.querySelector('.detalhe').style.display==='none'?'block':'none'">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="min-width:50px;font-size:12px;font-weight:600">JAN/26</div>
+          <div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;font-size:11px">
+            <div><div style="color:var(--tm)">Ent. real.</div><div class="mono" style="color:var(--t-ok)">R$ 6.200</div></div>
+            <div><div style="color:var(--tm)">Ent. proj.</div><div class="mono" style="color:var(--t-acc)">R$ 7.000</div></div>
+            <div><div style="color:var(--tm)">Saídas real.</div><div class="mono" style="color:var(--t-er)">R$ 4.100</div></div>
+            <div><div style="color:var(--tm)">Saídas proj.</div><div class="mono" style="color:var(--t-er)">R$ 4.500</div></div>
+            <div><div style="color:var(--tm)">Saldo</div><div class="mono" style="color:var(--t-ok)">R$ 2.100</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--tm)">Ver detalhe →</div>
+        </div>
+        <div class="detalhe" style="display:none;margin-top:12px;border-top:0.5px solid var(--border);padding-top:10px;font-size:11px;color:var(--tm)">Clique para expandir lançamentos diários...</div>
+      </div>
+      <div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="min-width:50px;font-size:12px;font-weight:600">FEV/26</div><div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;font-size:11px"><div><div style="color:var(--tm)">Ent. real.</div><div class="mono" style="color:var(--t-ok)">R$ 7.800</div></div><div><div style="color:var(--tm)">Ent. proj.</div><div class="mono" style="color:var(--t-acc)">R$ 7.500</div></div><div><div style="color:var(--tm)">Saídas real.</div><div class="mono" style="color:var(--t-er)">R$ 5.200</div></div><div><div style="color:var(--tm)">Saídas proj.</div><div class="mono" style="color:var(--t-er)">R$ 5.000</div></div><div><div style="color:var(--tm)">Saldo</div><div class="mono" style="color:var(--t-ok)">R$ 2.600</div></div></div></div></div>
+      <div class="card" style="border-color:var(--acc)"><div style="display:flex;align-items:center;gap:10px"><div style="min-width:50px;font-size:12px;font-weight:600">JUN/26 <span class="badge bbl" style="font-size:9px">atual</span></div><div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;font-size:11px"><div><div style="color:var(--tm)">Ent. real.</div><div class="mono" style="color:var(--t-ok)">R$ 8.471</div></div><div><div style="color:var(--tm)">Ent. proj.</div><div class="mono" style="color:var(--t-acc)">R$ 38.474</div></div><div><div style="color:var(--tm)">Saídas real.</div><div class="mono" style="color:var(--t-er)">R$ 26.400</div></div><div><div style="color:var(--tm)">Saídas proj.</div><div class="mono" style="color:var(--t-er)">R$ 29.100</div></div><div><div style="color:var(--tm)">Saldo</div><div class="mono" style="color:var(--t-ok)">R$ 12.074</div></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DRE -->
+<div id="p-dre" class="page">
+  <div class="topbar"><div><h1>DRE Gerencial</h1><p>Janeiro a Junho/2026</p></div></div>
+  <div class="content">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="metric"><div class="ml">Receita bruta acum.</div><div class="mv">R$ 228k</div></div>
+      <div class="metric"><div class="ml">Receita líquida acum.</div><div class="mv">R$ 204k</div></div>
+      <div class="metric"><div class="ml">EBITDA acum.</div><div class="mv" style="color:var(--t-ok)">R$ 68k</div></div>
+      <div class="metric"><div class="ml">Margem EBITDA</div><div class="mv" style="color:var(--t-ok)">29,8%</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">DRE — Jan a Jun/2026</div>
+      <div style="display:flex;flex-direction:column">
+        <div class="dre-row"><div style="flex:1;font-size:12px;color:var(--tp);font-weight:500">(+) Receita Bruta</div><div class="mono" style="font-weight:600">R$ 228.000</div></div>
+        <div class="dre-row" style="padding-left:24px"><div style="flex:1;font-size:11px;color:var(--ts)">ASP</div><div class="mono" style="font-size:11px">R$ 96.400</div></div>
+        <div class="dre-row" style="padding-left:24px"><div style="flex:1;font-size:11px;color:var(--ts)">BSP</div><div class="mono" style="font-size:11px">R$ 72.600</div></div>
+        <div class="dre-row" style="padding-left:24px"><div style="flex:1;font-size:11px;color:var(--ts)">BPO</div><div class="mono" style="font-size:11px">R$ 59.000</div></div>
+        <div class="dre-row"><div style="flex:1;font-size:12px;color:var(--t-er)">(-) Impostos sobre serviços</div><div class="mono" style="color:var(--t-er)">(R$ 24.000)</div></div>
+        <div class="dre-row destaque borda"><div style="flex:1;font-size:12px;color:var(--t-acc)">(=) Receita Líquida</div><div class="mono" style="color:var(--t-acc);font-weight:600">R$ 204.000</div></div>
+        <div class="dre-row"><div style="flex:1;font-size:12px;color:var(--t-er)">(-) Folha de Pagamento</div><div class="mono" style="color:var(--t-er)">(R$ 72.000)</div></div>
+        <div class="dre-row"><div style="flex:1;font-size:12px;color:var(--t-er)">(-) Benefícios</div><div class="mono" style="color:var(--t-er)">(R$ 18.000)</div></div>
+        <div class="dre-row"><div style="flex:1;font-size:12px;color:var(--t-er)">(-) Fornecedores</div><div class="mono" style="color:var(--t-er)">(R$ 22.000)</div></div>
+        <div class="dre-row destaque borda"><div style="flex:1;font-size:12px;color:var(--t-acc)">(=) Lucro Bruto</div><div class="mono" style="color:var(--t-acc);font-weight:600">R$ 92.000</div></div>
+        <div class="dre-row"><div style="flex:1;font-size:12px;color:var(--t-er)">(-) Despesas Operacionais</div><div class="mono" style="color:var(--t-er)">(R$ 24.000)</div></div>
+        <div class="dre-row destaque borda"><div style="flex:1;font-size:12px;color:var(--t-ok)">(=) EBITDA</div><div class="mono" style="color:var(--t-ok);font-weight:700">R$ 68.000</div></div>
+        <div class="dre-row" style="padding-left:24px"><div style="flex:1;font-size:11px;color:var(--tm)">Margem EBITDA</div><div class="mono" style="color:var(--t-ok);font-size:11px">29,8%</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONCILIAÇÃO -->
+<div id="p-conciliacao" class="page">
+  <div class="topbar"><div><h1>Conciliação Bancária</h1><p>Extrato × Lançamentos do sistema</p></div></div>
+  <div class="content">
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div><div style="font-size:13px;font-weight:500">Banco A definir — Ag. 0000 · C/C 00000-0</div><div style="font-size:12px;color:var(--tm);margin-top:2px">Saldo atual: <strong class="mono">R$ 45.230,00</strong></div></div>
+        <div style="display:flex;gap:8px">
+          <div style="background:var(--bg-wn);padding:6px 12px;border-radius:var(--r);text-align:center"><div style="font-size:10px;color:var(--t-wn)">Pendentes</div><div style="font-size:16px;font-weight:600">8</div></div>
+          <div style="background:var(--bg-ok);padding:6px 12px;border-radius:var(--r);text-align:center"><div style="font-size:10px;color:var(--t-ok)">Conciliados</div><div style="font-size:16px;font-weight:600">47</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Sugestão automática</th></tr></thead>
+        <tbody>
+          <tr><td>25/06/2026</td><td>TED RECEBIDA HORIZONTE TECH</td><td><span class="badge bgn">Crédito</span></td><td class="mono" style="color:var(--t-ok)">+R$ 8.471,00</td><td><span class="badge bgn">Conciliado</span></td><td style="font-size:11px;color:var(--t-ok)">✓ COB-2026-00001</td></tr>
+          <tr><td>28/06/2026</td><td>PIX RECEBIDO MARIA SILVA</td><td><span class="badge bgn">Crédito</span></td><td class="mono" style="color:var(--t-ok)">+R$ 3.200,00</td><td><span class="badge bam">Pendente</span></td><td><button class="btn" style="font-size:11px;color:var(--t-acc)">🔍 Ver sugestões</button></td></tr>
+          <tr><td>30/06/2026</td><td>DEB FORNEC INTERNET</td><td><span class="badge brd">Débito</span></td><td class="mono" style="color:var(--t-er)">-R$ 890,00</td><td><span class="badge bgn">Conciliado</span></td><td style="font-size:11px;color:var(--t-ok)">✓ DES-2026-00004</td></tr>
+          <tr><td>01/07/2026</td><td>TED ENVIADA</td><td><span class="badge brd">Débito</span></td><td class="mono" style="color:var(--t-er)">-R$ 3.200,00</td><td><span class="badge bam">Pendente</span></td><td><button class="btn" style="font-size:11px;color:var(--t-acc)">🔍 Ver sugestões</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- COMISSÕES -->
+<div id="p-comissoes" class="page">
+  <div class="topbar"><div><h1>Comissões</h1><p>Indicações de parceiros</p></div></div>
+  <div class="content">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="metric"><div class="ml">Aguard. aprovação</div><div class="mv" style="color:var(--t-wn)">1</div></div>
+      <div class="metric"><div class="ml">Aprovadas</div><div class="mv" style="color:var(--t-acc)">2</div><div class="ms">R$ 4.000 a pagar</div></div>
+      <div class="metric"><div class="ml">Total pago</div><div class="mv" style="color:var(--t-ok)">R$ 2.500</div></div>
+      <div class="metric"><div class="ml">Parceiros ativos</div><div class="mv">3</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nº</th><th>Parceiro</th><th>Contrato / Cliente</th><th>Valor</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">COM-2026-00001</td><td>João Parceiro<br><span style="font-size:10px;color:var(--tm)">PIX: joao@email.com</span></td><td>CTR-2024-0003<br><span style="font-size:10px;color:var(--tm)">Vale Verde</span></td><td class="mono">R$ 2.500</td><td><span class="badge bgn">Paga</span></td><td>—</td></tr>
+          <tr><td class="mono">COM-2026-00002</td><td>Ana Indicadora</td><td>CTR-2024-0005<br><span style="font-size:10px;color:var(--tm)">ConectaShop</span></td><td class="mono">R$ 1.800</td><td><span class="badge bbl">Aprovada</span></td><td><button class="btn" style="font-size:11px;color:var(--t-ok)">Pagar</button></td></tr>
+          <tr><td class="mono">COM-2026-00003</td><td>Carlos Consultor</td><td>CTR-2025-0001<br><span style="font-size:10px;color:var(--tm)">Campos Gerais</span></td><td class="mono">R$ 2.200</td><td><span class="badge bam">Aguard. aprovação</span></td><td><button class="btn" style="font-size:11px;color:var(--t-acc)">Aprovar</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ORÇAMENTO -->
+<div id="p-orcamento" class="page">
+  <div class="topbar"><div><h1>Orçamento × Realizado</h1><p>2026 · Meta anual distribuída mensalmente</p></div></div>
+  <div class="content">
+    <div class="g3" style="margin-bottom:14px">
+      <div class="metric" style="background:var(--bg-acc)"><div class="ml" style="color:var(--t-acc)">Receita orçada 2026</div><div class="mv">R$ 480k</div><div class="ms">Realizado: R$ 228k (47,5%)</div><div class="pbar" style="margin-top:6px"><div class="pfill" style="width:47.5%;background:var(--acc)"></div></div></div>
+      <div class="metric" style="background:var(--bg-wn)"><div class="ml" style="color:var(--t-wn)">Despesa orçada 2026</div><div class="mv">R$ 348k</div><div class="ms">Realizado: R$ 160k (46%)</div><div class="pbar" style="margin-top:6px"><div class="pfill" style="width:46%;background:var(--t-wn)"></div></div></div>
+      <div class="metric" style="background:var(--bg-ok)"><div class="ml" style="color:var(--t-ok)">Resultado orçado 2026</div><div class="mv">R$ 132k</div><div class="ms">Realizado: R$ 68k (51,5%)</div><div class="pbar" style="margin-top:6px"><div class="pfill" style="width:51.5%;background:#15803d"></div></div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Mês</th><th>Rec. Orçada</th><th>Rec. Realizada</th><th>Desvio</th><th>Atingimento</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:500">JAN</td><td class="mono">R$ 40.000</td><td class="mono">R$ 37.200</td><td class="mono" style="color:var(--t-er)">-R$ 2.800</td><td><div style="display:flex;align-items:center;gap:8px"><div class="pbar" style="flex:1"><div class="pfill" style="width:93%;background:var(--t-wn)"></div></div><span style="font-size:11px;color:var(--t-wn)">93%</span></div></td></tr>
+          <tr><td style="font-weight:500">FEV</td><td class="mono">R$ 40.000</td><td class="mono">R$ 41.500</td><td class="mono" style="color:var(--t-ok)">+R$ 1.500</td><td><div style="display:flex;align-items:center;gap:8px"><div class="pbar" style="flex:1"><div class="pfill" style="width:100%;background:var(--t-ok)"></div></div><span style="font-size:11px;color:var(--t-ok)">103%</span></div></td></tr>
+          <tr><td style="font-weight:500">MAR</td><td class="mono">R$ 40.000</td><td class="mono">R$ 38.900</td><td class="mono" style="color:var(--t-er)">-R$ 1.100</td><td><div style="display:flex;align-items:center;gap:8px"><div class="pbar" style="flex:1"><div class="pfill" style="width:97%;background:var(--t-wn)"></div></div><span style="font-size:11px;color:var(--t-wn)">97%</span></div></td></tr>
+          <tr style="background:var(--bg-acc)"><td style="font-weight:600">JUN (atual)</td><td class="mono">R$ 40.000</td><td class="mono">R$ 8.471</td><td class="mono" style="color:var(--t-er)">-R$ 31.529</td><td><div style="display:flex;align-items:center;gap:8px"><div class="pbar" style="flex:1"><div class="pfill" style="width:21%;background:var(--t-wn)"></div></div><span style="font-size:11px;color:var(--t-wn)">21%</span></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- REAJUSTES -->
+<div id="p-reajustes" class="page">
+  <div class="topbar"><div><h1>Reajustes</h1><p>Controle anual por contrato</p></div></div>
+  <div class="content">
+    <div class="g4" style="margin-bottom:14px">
+      <div class="metric"><div class="ml">Contratos monitorados</div><div class="mv">6</div></div>
+      <div class="metric"><div class="ml">Pendentes</div><div class="mv" style="color:var(--t-er)">2</div><div class="ms" style="color:var(--t-er)">CTR-0001 +120d</div></div>
+      <div class="metric"><div class="ml">Último aplicado</div><div class="mv">INPC 4,5%</div><div class="ms">FarmaNacional</div></div>
+      <div class="metric"><div class="ml">INPC acum. 2024</div><div class="mv">4,72%</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Contrato</th><th>Cliente</th><th>Modalidade</th><th>Próx. reajuste</th><th>Atraso</th><th>Índice</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr class="row-er"><td class="mono">CTR-2024-0001</td><td>Horizonte Tech</td><td><span class="badge bbl">ASP</span></td><td>01/03/2026</td><td style="color:var(--t-er);font-weight:500">+120d</td><td>INPC</td><td><span class="badge brd">Vencido</span></td></tr>
+          <tr><td class="mono">CTR-2024-0002</td><td>FarmaNacional</td><td><span class="badge bpr">BSP</span></td><td>01/04/2027</td><td style="color:var(--tm)">—</td><td>INPC</td><td><span class="badge bgn">Efetivado</span></td></tr>
+          <tr class="row-hi"><td class="mono">CTR-2024-0003</td><td>Vale Verde</td><td><span class="badge bam">BPO</span></td><td>01/06/2026</td><td style="color:var(--t-er);font-weight:500">+28d</td><td>INPC + dissídio</td><td><span class="badge bam">Pendente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- GO-LIVE -->
+<div id="p-golive" class="page">
+  <div class="topbar"><div><h1>Go-live</h1><p>2 itens aguardando confirmação</p></div></div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title"><span><span class="badge bbl" style="margin-right:8px">ASP</span>CTR-2025-0001 — Campos Gerais</span><span style="font-size:11px;color:var(--tm)">262 dias em implantação</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th style="width:30px"><input type="checkbox"></th><th>Produto</th><th>Valor/mês</th><th>Status</th><th>Ação</th></tr></thead>
+          <tbody>
+            <tr><td><input type="checkbox"></td><td><strong>Licença base do sistema</strong><br><span class="mono" style="color:var(--tm)">ASP-LIC-BASE</span></td><td class="mono">R$ 3.040</td><td><span class="badge bam">Aguardando go-live</span></td><td><button class="btn" style="font-size:11px;color:var(--t-ok)">🚀 Registrar</button></td></tr>
+            <tr><td><input type="checkbox"></td><td><strong>Licença por usuário</strong><br><span class="mono" style="color:var(--tm)">8 usuários</span></td><td class="mono">R$ 1.280</td><td><span class="badge bam">Aguardando go-live</span></td><td><button class="btn" style="font-size:11px;color:var(--t-ok)">🚀 Registrar</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VALIDAÇÃO IA -->
+<div id="p-validacao" class="page">
+  <div class="topbar"><div><h1>Validação IA</h1><p>12 regras determinísticas + Claude API</p></div></div>
+  <div class="content">
+    <div class="g2">
+      <div>
+        <div class="card">
+          <div class="card-title"><span>Alertas em aberto</span><div><span class="badge brd" style="margin-right:4px">2 críticos</span><span class="badge bam">1 atenção</span></div></div>
+          <div class="al al-cr"><span class="al-code" style="color:var(--t-er)">VAL001</span><div class="al-body"><strong>FAT-2026-00006 · Horizonte Tech</strong><br>Licença base: R$ 4.500 contratado × R$ 5.200 faturado<br><input style="font-size:11px;width:100%;margin-top:5px;border:0.5px solid var(--bs);border-radius:4px;padding:4px 8px" placeholder="Justificativa obrigatória..."></div></div>
+          <div class="al al-cr"><span class="al-code" style="color:var(--t-er)">VAL008</span><div class="al-body"><strong>FAT-2026-00006 · Horizonte Tech</strong><br>Aviso prévio de "Suporte técnico" vencido há 15 dias<br><input style="font-size:11px;width:100%;margin-top:5px;border:0.5px solid var(--bs);border-radius:4px;padding:4px 8px" placeholder="Justificativa obrigatória..."></div></div>
+          <div class="al al-wn"><span class="al-code" style="color:var(--t-wn)">VAL005</span><div class="al-body"><strong>CTR-2024-0004 · Aprender Mais</strong><br>Contrato vence em 25 dias — verificar renovação</div></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" style="color:var(--t-er);border-color:#FECACA;background:var(--bg-er)">⚠ Emitir com ressalva</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">12 regras ativas</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-er)">●</span><span class="mono" style="color:var(--tm)">VAL001</span><span>Valor incorreto</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-er)">●</span><span class="mono" style="color:var(--tm)">VAL002</span><span>Sem go-live</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-wn)">●</span><span class="mono" style="color:var(--tm)">VAL003</span><span>Data de apuração</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-er)">●</span><span class="mono" style="color:var(--tm)">VAL004</span><span>Reajuste sem aprovação</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-er)">●</span><span class="mono" style="color:var(--tm)">VAL005</span><span>Contrato vencido</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-wn)">●</span><span class="mono" style="color:var(--tm)">VAL006</span><span>Sem volumetria</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-er)">●</span><span class="mono" style="color:var(--tm)">VAL007</span><span>Produto cancelado</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-er)">●</span><span class="mono" style="color:var(--tm)">VAL008</span><span>Aviso prévio vencido</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-wn)">●</span><span class="mono" style="color:var(--tm)">VAL009</span><span>Anomalia volumetria</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-er)">●</span><span class="mono" style="color:var(--tm)">VAL010</span><span>Fatura duplicada</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-wn)">●</span><span class="mono" style="color:var(--tm)">VAL011</span><span>Cliente bloqueado</span></div>
+          <div style="display:flex;gap:6px;align-items:center;font-size:11px"><span style="color:var(--t-wn)">●</span><span class="mono" style="color:var(--tm)">VAL012</span><span>Desconto não previsto</span></div>
+          <div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);font-size:10px;color:var(--tm)"><i class="ti ti-sparkles" style="font-size:12px;vertical-align:-2px"></i> Claude API: anomalias via <code>?com_ia=true</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+document.querySelectorAll('.ni').forEach(n=>{
+  n.addEventListener('click',()=>{
+    document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+    n.classList.add('on');
+    document.getElementById('p-'+n.dataset.p).classList.add('on');
+  });
+});
+</script>
+</body>
+</html>

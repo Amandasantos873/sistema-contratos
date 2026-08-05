@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log do Projeto — Sistema de Contratos</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F5F3;--s1:#EEEEE9;--s2:#fff;
+  --border:rgba(0,0,0,0.10);--border-s:rgba(0,0,0,0.18);
+  --tp:#1a1a18;--ts:#4a4a45;--tm:#888780;
+  --r:8px;
+  --acc:#185FA5;--bg-acc:#E6F1FB;--t-acc:#185FA5;
+  --bg-ok:#DCFCE7;--t-ok:#15803D;
+  --bg-wn:#FEF3C7;--t-wn:#92400E;
+  --bg-er:#FEE2E2;--t-er:#B91C1C;
+  --bg-pr:#EDE9FE;--t-pr:#5B21B6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tp);font-size:14px;min-height:100vh}
+
+/* Layout */
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:0.5px solid var(--border-s)}
+.header-left h1{font-size:18px;font-weight:500}
+.header-left p{font-size:12px;color:var(--tm);margin-top:3px}
+.header-right{display:flex;gap:8px;align-items:center}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border-s);margin-bottom:20px}
+.tab{padding:9px 18px;font-size:13px;color:var(--tm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px;user-select:none}
+.tab:hover{color:var(--ts)}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:500}
+.page{display:none}.page.on{display:block}
+
+/* Cards e botões */
+.card{background:var(--s2);border:0.5px solid var(--border-s);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.btn{padding:7px 14px;border-radius:var(--r);font-size:13px;cursor:pointer;border:0.5px solid var(--border-s);background:var(--s2);color:var(--ts);display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--s1)}
+.btn-p{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn-p:hover{opacity:0.9}
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:6px}
+.btn-danger{color:var(--t-er);border-color:#FECACA;background:var(--bg-er)}
+
+/* Form */
+input,textarea,select{border:0.5px solid var(--border-s);border-radius:var(--r);padding:8px 11px;font-size:13px;background:var(--s1);color:var(--tp);font-family:inherit;width:100%;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--acc);background:var(--s2)}
+textarea{resize:vertical;min-height:80px}
+label{font-size:12px;font-weight:500;color:var(--ts);display:block;margin-bottom:4px}
+.form-row{display:grid;gap:10px;margin-bottom:12px}
+.form-row.col2{grid-template-columns:1fr 1fr}
+.form-row.col3{grid-template-columns:1fr 1fr 1fr}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:14px;border-top:0.5px solid var(--border)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-green{background:var(--bg-ok);color:var(--t-ok)}
+.b-blue{background:var(--bg-acc);color:var(--t-acc)}
+.b-amber{background:var(--bg-wn);color:var(--t-wn)}
+.b-red{background:var(--bg-er);color:var(--t-er)}
+.b-gray{background:var(--s1);color:var(--tm);border:0.5px solid var(--border-s)}
+.b-purple{background:var(--bg-pr);color:var(--t-pr)}
+
+/* Log entries */
+.entry{background:var(--s2);border:0.5px solid var(--border-s);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px}
+.entry-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;margin-top:2px}
+.entry-body{flex:1;min-width:0}
+.entry-header{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+.entry-name{font-weight:500;font-size:13px}
+.entry-time{font-size:11px;color:var(--tm)}
+.entry-text{font-size:13px;color:var(--ts);line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.entry-actions{display:flex;gap:6px;margin-top:8px;opacity:0;transition:opacity 0.15s}
+.entry:hover .entry-actions{opacity:1}
+
+/* Tarefas */
+.task{background:var(--s2);border:0.5px solid var(--border-s);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.task.done .task-text{text-decoration:line-through;color:var(--tm)}
+.task-cb{width:18px;height:18px;border:1.5px solid var(--border-s);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.1s}
+.task-cb.checked{background:var(--acc);border-color:var(--acc);color:#fff}
+.task-body{flex:1}
+.task-text{font-size:13px;color:var(--ts)}
+.task-meta{font-size:11px;color:var(--tm);margin-top:3px;display:flex;gap:8px}
+.task-actions{display:flex;gap:6px;margin-left:auto;opacity:0;transition:opacity 0.15s}
+.task:hover .task-actions{opacity:1}
+
+/* Modulos */
+.modulo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.modulo-card{background:var(--s2);border:0.5px solid var(--border-s);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:border-color 0.1s}
+.modulo-card:hover{border-color:var(--acc)}
+.modulo-card.sel{border-color:var(--acc);background:var(--bg-acc)}
+.modulo-name{font-size:13px;font-weight:500;margin-bottom:3px}
+.modulo-prog{font-size:11px;color:var(--tm)}
+.prog-bar{height:4px;background:var(--s1);border-radius:2px;margin-top:6px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;background:var(--acc);transition:width 0.3s}
+
+/* Decisões */
+.decisao{background:var(--s2);border-left:3px solid var(--acc);border-radius:0 var(--r) var(--r) 0;border:0.5px solid var(--border-s);border-left:3px solid var(--acc);padding:12px 14px;margin-bottom:8px}
+.decisao-titulo{font-size:13px;font-weight:500;margin-bottom:4px}
+.decisao-texto{font-size:13px;color:var(--ts);line-height:1.6}
+.decisao-meta{font-size:11px;color:var(--tm);margin-top:6px;display:flex;gap:10px}
+
+/* Empty */
+.empty{text-align:center;padding:40px;color:var(--tm);font-size:13px}
+.empty i{font-size:32px;display:block;margin-bottom:10px;opacity:0.4}
+
+/* Modal overlay */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal{background:var(--s2);border-radius:12px;border:0.5px solid var(--border-s);padding:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:15px;font-weight:500;margin-bottom:16px}
+.hidden{display:none!important}
+
+/* Cores de avatar */
+.av-blue{background:var(--bg-acc);color:var(--t-acc)}
+.av-green{background:var(--bg-ok);color:var(--t-ok)}
+.av-amber{background:var(--bg-wn);color:var(--t-wn)}
+.av-purple{background:var(--bg-pr);color:var(--t-pr)}
+.av-red{background:var(--bg-er);color:var(--t-er)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1><i class="ti ti-git-branch" style="vertical-align:-3px;margin-right:6px;color:var(--acc)"></i>Log do Projeto — Sistema de Contratos</h1>
+      <p id="header-sub">Carregando...</p>
+    </div>
+    <div class="header-right">
+      <div id="user-info" style="font-size:13px;color:var(--ts);display:flex;align-items:center;gap:8px"></div>
+      <button class="btn btn-sm" onclick="showModal('modal-perfil')"><i class="ti ti-user"></i> Meu perfil</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on" onclick="goTab('log',this)"><i class="ti ti-message-circle" style="vertical-align:-2px;margin-right:4px"></i>Log</div>
+    <div class="tab" onclick="goTab('tarefas',this)"><i class="ti ti-check" style="vertical-align:-2px;margin-right:4px"></i>Tarefas <span id="badge-tarefas" class="badge b-amber" style="margin-left:4px"></span></div>
+    <div class="tab" onclick="goTab('modulos',this)"><i class="ti ti-layout-grid" style="vertical-align:-2px;margin-right:4px"></i>Módulos</div>
+    <div class="tab" onclick="goTab('decisoes',this)"><i class="ti ti-bulb" style="vertical-align:-2px;margin-right:4px"></i>Decisões</div>
+    <div class="tab" onclick="goTab('equipe',this)"><i class="ti ti-users" style="vertical-align:-2px;margin-right:4px"></i>Equipe</div>
+  </div>
+
+  <!-- ===== LOG ===== -->
+  <div class="page on" id="page-log">
+    <div class="card" style="margin-bottom:16px">
+      <div class="form-row">
+        <div>
+          <label>Nova entrada no log</label>
+          <textarea id="log-texto" placeholder="O que aconteceu? Decisão tomada, dúvida, progresso, impedimento..." rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-row col3">
+        <div>
+          <label>Módulo relacionado</label>
+          <select id="log-modulo">
+            <option value="">Geral</option>
+            <option>01 — Clientes</option>
+            <option>02 — Contratos</option>
+            <option>03 — Produtos</option>
+            <option>04 — Reajustes</option>
+            <option>05 — Faturamento</option>
+            <option>06 — Validação IA</option>
+            <option>Infraestrutura</option>
+            <option>Reunião</option>
+          </select>
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="log-tipo">
+            <option value="progresso">Progresso</option>
+            <option value="decisao">Decisão</option>
+            <option value="duvida">Dúvida</option>
+            <option value="impedimento">Impedimento</option>
+            <option value="reuniao">Reunião</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-p" style="width:100%" onclick="addLog()"><i class="ti ti-send"></i> Registrar</button>
+        </div>
+      </div>
+    </div>
+    <div id="log-filtros" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="btn btn-sm on-filter" data-f="" onclick="filtrarLog('')">Todos</button>
+      <button class="btn btn-sm" data-f="progresso" onclick="filtrarLog('progresso')">Progresso</button>
+      <button class="btn btn-sm" data-f="decisao" onclick="filtrarLog('decisao')">Decisões</button>
+      <button class="btn btn-sm" data-f="duvida" onclick="filtrarLog('duvida')">Dúvidas</button>
+      <button class="btn btn-sm" data-f="impedimento" onclick="filtrarLog('impedimento')">Impedimentos</button>
+    </div>
+    <div id="log-list"></div>
+  </div>
+
+  <!-- ===== TAREFAS ===== -->
+  <div class="page" id="page-tarefas">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm on-filter" data-tf="todas" onclick="filtrarTarefas('todas')">Todas</button>
+        <button class="btn btn-sm" data-tf="pendente" onclick="filtrarTarefas('pendente')">Pendentes</button>
+        <button class="btn btn-sm" data-tf="feita" onclick="filtrarTarefas('feita')">Concluídas</button>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="showModal('modal-tarefa')"><i class="ti ti-plus"></i> Nova tarefa</button>
+    </div>
+    <div id="tarefas-list"></div>
+  </div>
+
+  <!-- ===== MÓDULOS ===== -->
+  <div class="page" id="page-modulos">
+    <div class="modulo-grid" id="modulo-grid"></div>
+    <div id="modulo-detalhe" class="card hidden">
+      <div id="modulo-detalhe-content"></div>
+    </div>
+  </div>
+
+  <!-- ===== DECISÕES ===== -->
+  <div class="page" id="page-decisoes">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+      <button class="btn btn-p btn-sm" onclick="showModal('modal-decisao')"><i class="ti ti-plus"></i> Registrar decisão</button>
+    </div>
+    <div id="decisoes-list"></div>
+  </div>
+
+  <!-- ===== EQUIPE ===== -->
+  <div class="page" id="page-equipe">
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">Membros do projeto</div>
+      <div id="equipe-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Adicionar membro</div>
+      <div class="form-row col2">
+        <div><label>Nome</label><input id="eq-nome" placeholder="Nome completo"></div>
+        <div><label>Papel</label>
+          <select id="eq-papel">
+            <option>Gestor do projeto</option>
+            <option>Desenvolvedor backend</option>
+            <option>Desenvolvedor frontend</option>
+            <option>Analista de negócio</option>
+            <option>Comercial</option>
+            <option>Financeiro</option>
+            <option>QA / Testes</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><div><label>E-mail</label><input id="eq-email" placeholder="email@empresa.com.br" type="email"></div></div>
+      <div class="form-actions"><button class="btn btn-p" onclick="addMembro()"><i class="ti ti-user-plus"></i> Adicionar</button></div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- ===== MODAIS ===== -->
+
+<!-- Perfil -->
+<div class="modal-overlay hidden" id="modal-perfil">
+  <div class="modal">
+    <h2><i class="ti ti-user" style="vertical-align:-2px;margin-right:6px"></i>Meu perfil</h2>
+    <div class="form-row col2">
+      <div><label>Seu nome *</label><input id="p-nome" placeholder="Como você quer aparecer no log"></div>
+      <div><label>Papel no projeto</label>
+        <select id="p-papel">
+          <option>Gestor do projeto</option>
+          <option>Desenvolvedor backend</option>
+          <option>Desenvolvedor frontend</option>
+          <option>Analista de negócio</option>
+          <option>Comercial</option>
+          <option>Financeiro</option>
+          <option>QA / Testes</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="hideModal('modal-perfil')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarPerfil()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nova tarefa -->
+<div class="modal-overlay hidden" id="modal-tarefa">
+  <div class="modal">
+    <h2><i class="ti ti-check" style="vertical-align:-2px;margin-right:6px"></i>Nova tarefa</h2>
+    <div class="form-row"><div><label>Descrição *</label><textarea id="t-texto" placeholder="O que precisa ser feito?" rows="2"></textarea></div></div>
+    <div class="form-row col3">
+      <div><label>Responsável</label><input id="t-resp" placeholder="Nome"></div>
+      <div><label>Módulo</label>
+        <select id="t-modulo">
+          <option value="">Geral</option>
+          <option>01 — Clientes</option><option>02 — Contratos</option>
+          <option>03 — Produtos</option><option>04 — Reajustes</option>
+          <option>05 — Faturamento</option><option>06 — Validação IA</option>
+          <option>Infraestrutura</option>
+        </select>
+      </div>
+      <div><label>Prioridade</label>
+        <select id="t-prior">
+          <option value="normal">Normal</option>
+          <option value="alta">Alta</option>
+          <option value="baixa">Baixa</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row"><div><label>Data limite</label><input id="t-data" type="date"></div></div>
+    <div class="form-actions">
+      <button class="btn" onclick="hideModal('modal-tarefa')">Cancelar</button>
+      <button class="btn btn-p" onclick="addTarefa()"><i class="ti ti-plus"></i> Criar tarefa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nova decisão -->
+<div class="modal-overlay hidden" id="modal-decisao">
+  <div class="modal">
+    <h2><i class="ti ti-bulb" style="vertical-align:-2px;margin-right:6px"></i>Registrar decisão</h2>
+    <div class="form-row"><div><label>Título da decisão *</label><input id="d-titulo" placeholder="Ex: Usar INPC como índice padrão de reajuste"></div></div>
+    <div class="form-row"><div><label>Contexto e justificativa *</label><textarea id="d-texto" placeholder="Por que esta decisão foi tomada? Quais alternativas foram consideradas?" rows="3"></textarea></div></div>
+    <div class="form-row col2">
+      <div><label>Módulo</label>
+        <select id="d-modulo">
+          <option value="">Geral</option>
+          <option>01 — Clientes</option><option>02 — Contratos</option>
+          <option>03 — Produtos</option><option>04 — Reajustes</option>
+          <option>05 — Faturamento</option><option>06 — Validação IA</option>
+          <option>Arquitetura</option>
+        </select>
+      </div>
+      <div><label>Impacto</label>
+        <select id="d-impacto">
+          <option value="baixo">Baixo</option>
+          <option value="medio">Médio</option>
+          <option value="alto">Alto</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="hideModal('modal-decisao')">Cancelar</button>
+      <button class="btn btn-p" onclick="addDecisao()"><i class="ti ti-check"></i> Registrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── ESTADO ─────────────────────────────────────────────────────────
+const KEY = 'proj_contratos_v1';
+let STATE = {
+  perfil: { nome: '', papel: 'Gestor do projeto' },
+  logs: [],
+  tarefas: [],
+  decisoes: [],
+  equipe: [],
+  modulos: [
+    { id:'m01', nome:'01 — Clientes',       status:'concluido', pct:100, obs:'' },
+    { id:'m02', nome:'02 — Contratos',       status:'concluido', pct:100, obs:'' },
+    { id:'m03', nome:'03 — Produtos',        status:'concluido', pct:100, obs:'' },
+    { id:'m04', nome:'04 — Reajustes',       status:'concluido', pct:100, obs:'' },
+    { id:'m05', nome:'05 — Faturamento',     status:'concluido', pct:100, obs:'' },
+    { id:'m06', nome:'06 — Validação IA',    status:'concluido', pct:100, obs:'' },
+    { id:'m07', nome:'Banco de dados',       status:'em_andamento', pct:60, obs:'' },
+    { id:'m08', nome:'Infraestrutura',       status:'nao_iniciado', pct:0,  obs:'' },
+    { id:'m09', nome:'Autenticação / Login', status:'nao_iniciado', pct:0,  obs:'' },
+    { id:'m10', nome:'Testes integração',    status:'nao_iniciado', pct:0,  obs:'' },
+  ]
+};
+
+function load() {
+  try { const s = localStorage.getItem(KEY); if (s) STATE = JSON.parse(s); } catch(e){}
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(STATE)); } catch(e){}
+}
+
+// ── HELPERS ─────────────────────────────────────────────────────────
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+function initials(nome) {
+  return (nome||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+const AV_COLORS = ['av-blue','av-green','av-amber','av-purple','av-red'];
+function avColor(nome) { return AV_COLORS[(nome||'').length % AV_COLORS.length]; }
+
+const TIPO_BADGE = {
+  progresso:   '<span class="badge b-green">Progresso</span>',
+  decisao:     '<span class="badge b-blue">Decisão</span>',
+  duvida:      '<span class="badge b-amber">Dúvida</span>',
+  impedimento: '<span class="badge b-red">Impedimento</span>',
+  reuniao:     '<span class="badge b-purple">Reunião</span>',
+  outro:       '<span class="badge b-gray">Outro</span>',
+};
+const PRIOR_BADGE = {
+  alta:   '<span class="badge b-red">Alta</span>',
+  normal: '<span class="badge b-blue">Normal</span>',
+  baixa:  '<span class="badge b-gray">Baixa</span>',
+};
+const MOD_STATUS = {
+  concluido:     { label:'Concluído',     cls:'b-green' },
+  em_andamento:  { label:'Em andamento',  cls:'b-amber' },
+  nao_iniciado:  { label:'Não iniciado',  cls:'b-gray'  },
+  bloqueado:     { label:'Bloqueado',     cls:'b-red'   },
+};
+
+// ── NAVEGAÇÃO ────────────────────────────────────────────────────────
+function goTab(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+// ── MODAIS ────────────────────────────────────────────────────────────
+function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.add('hidden'); });
+});
+
+// ── PERFIL ────────────────────────────────────────────────────────────
+function renderPerfil() {
+  const p = STATE.perfil;
+  const el = document.getElementById('user-info');
+  if (p.nome) {
+    el.innerHTML = `<div class="entry-avatar ${avColor(p.nome)}" style="width:28px;height:28px;font-size:11px">${initials(p.nome)}</div><span style="font-size:13px;font-weight:500">${p.nome}</span>`;
+    document.getElementById('header-sub').textContent = `${p.papel} · ${STATE.logs.length} entrada(s) no log`;
+  } else {
+    el.innerHTML = '';
+    document.getElementById('header-sub').textContent = 'Configure seu perfil para começar';
+    showModal('modal-perfil');
+  }
+}
+function salvarPerfil() {
+  const nome = document.getElementById('p-nome').value.trim();
+  if (!nome) { alert('Informe seu nome.'); return; }
+  STATE.perfil = { nome, papel: document.getElementById('p-papel').value };
+  save(); renderPerfil(); hideModal('modal-perfil');
+}
+
+// ── LOG ───────────────────────────────────────────────────────────────
+let logFiltro = '';
+function addLog() {
+  const texto = document.getElementById('log-texto').value.trim();
+  if (!texto) { alert('Escreva algo no log.'); return; }
+  if (!STATE.perfil.nome) { showModal('modal-perfil'); return; }
+  STATE.logs.unshift({
+    id: Date.now(),
+    autor: STATE.perfil.nome,
+    papel: STATE.perfil.papel,
+    tipo: document.getElementById('log-tipo').value,
+    modulo: document.getElementById('log-modulo').value,
+    texto,
+    ts: Date.now()
+  });
+  document.getElementById('log-texto').value = '';
+  save(); renderLog(); renderPerfil();
+}
+function delLog(id) {
+  if (!confirm('Remover esta entrada do log?')) return;
+  STATE.logs = STATE.logs.filter(l=>l.id!==id);
+  save(); renderLog();
+}
+function filtrarLog(f) {
+  logFiltro = f;
+  document.querySelectorAll('#log-filtros .btn').forEach(b=>{
+    b.classList.toggle('btn-p', b.dataset.f===f);
+  });
+  renderLog();
+}
+function renderLog() {
+  const lista = logFiltro ? STATE.logs.filter(l=>l.tipo===logFiltro) : STATE.logs;
+  const el = document.getElementById('log-list');
+  if (!lista.length) { el.innerHTML = '<div class="empty"><i class="ti ti-message-circle"></i>Nenhuma entrada no log ainda.</div>'; return; }
+  el.innerHTML = lista.map(l=>`
+    <div class="entry">
+      <div class="entry-avatar ${avColor(l.autor)}">${initials(l.autor)}</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <span class="entry-name">${l.autor}</span>
+          <span class="entry-time">${l.papel}</span>
+          ${TIPO_BADGE[l.tipo]||''}
+          ${l.modulo?`<span class="badge b-gray">${l.modulo}</span>`:''}
+          <span class="entry-time" style="margin-left:auto">${fmtDate(l.ts)}</span>
+        </div>
+        <div class="entry-text">${escHtml(l.texto)}</div>
+        <div class="entry-actions">
+          <button class="btn btn-sm btn-danger" onclick="delLog(${l.id})"><i class="ti ti-trash"></i> Remover</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── TAREFAS ───────────────────────────────────────────────────────────
+let tarefaFiltro = 'todas';
+function addTarefa() {
+  const texto = document.getElementById('t-texto').value.trim();
+  if (!texto) { alert('Descreva a tarefa.'); return; }
+  STATE.tarefas.unshift({
+    id: Date.now(),
+    texto,
+    resp: document.getElementById('t-resp').value.trim(),
+    modulo: document.getElementById('t-modulo').value,
+    prior: document.getElementById('t-prior').value,
+    data: document.getElementById('t-data').value,
+    feita: false,
+    ts: Date.now(),
+    autor: STATE.perfil.nome
+  });
+  document.getElementById('t-texto').value='';
+  document.getElementById('t-resp').value='';
+  document.getElementById('t-data').value='';
+  save(); renderTarefas(); hideModal('modal-tarefa'); renderBadgeTarefas();
+}
+function toggleTarefa(id) {
+  const t = STATE.tarefas.find(x=>x.id===id);
+  if (t) { t.feita=!t.feita; save(); renderTarefas(); renderBadgeTarefas(); }
+}
+function delTarefa(id) {
+  if (!confirm('Remover tarefa?')) return;
+  STATE.tarefas = STATE.tarefas.filter(x=>x.id!==id);
+  save(); renderTarefas(); renderBadgeTarefas();
+}
+function filtrarTarefas(f) {
+  tarefaFiltro = f;
+  document.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('btn-p',b.dataset.tf===f));
+  renderTarefas();
+}
+function renderBadgeTarefas() {
+  const pend = STATE.tarefas.filter(t=>!t.feita).length;
+  const el = document.getElementById('badge-tarefas');
+  el.textContent = pend||''; el.style.display = pend?'':'none';
+}
+function renderTarefas() {
+  let lista = STATE.tarefas;
+  if (tarefaFiltro==='pendente') lista = lista.filter(t=>!t.feita);
+  if (tarefaFiltro==='feita')    lista = lista.filter(t=>t.feita);
+  const el = document.getElementById('tarefas-list');
+  if (!lista.length) { el.innerHTML='<div class="empty"><i class="ti ti-check"></i>Nenhuma tarefa aqui.</div>'; return; }
+  el.innerHTML = lista.map(t=>`
+    <div class="task ${t.feita?'done':''}">
+      <div class="task-cb ${t.feita?'checked':''}" onclick="toggleTarefa(${t.id})">
+        ${t.feita?'<i class="ti ti-check" style="font-size:12px"></i>':''}
+      </div>
+      <div class="task-body">
+        <div class="task-text">${escHtml(t.texto)}</div>
+        <div class="task-meta">
+          ${t.resp?`<span><i class="ti ti-user" style="vertical-align:-2px"></i> ${t.resp}</span>`:''}
+          ${t.modulo?`<span>${t.modulo}</span>`:''}
+          ${t.data?`<span><i class="ti ti-calendar" style="vertical-align:-2px"></i> ${fmtDataSimples(t.data)}</span>`:''}
+          ${PRIOR_BADGE[t.prior]||''}
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="btn btn-sm btn-danger" onclick="delTarefa(${t.id})"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+function fmtDataSimples(s) {
+  if (!s) return '';
+  const [a,m,d] = s.split('-');
+  return `${d}/${m}/${a}`;
+}
+
+// ── MÓDULOS ───────────────────────────────────────────────────────────
+function renderModulos() {
+  const grid = document.getElementById('modulo-grid');
+  grid.innerHTML = STATE.modulos.map(m=>`
+    <div class="modulo-card" onclick="verModulo('${m.id}')">
+      <div class="modulo-name">${m.nome}</div>
+      <div class="modulo-prog">
+        <span class="badge ${MOD_STATUS[m.status]?.cls||'b-gray'}">${MOD_STATUS[m.status]?.label||m.status}</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${m.pct}%"></div></div>
+      <div style="font-size:11px;color:var(--tm);margin-top:4px;text-align:right">${m.pct}%</div>
+    </div>`).join('');
+}
+function verModulo(id) {
+  const m = STATE.modulos.find(x=>x.id===id);
+  const det = document.getElementById('modulo-detalhe');
+  det.classList.remove('hidden');
+  document.getElementById('modulo-detalhe-content').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div>
+        <div style="font-size:15px;font-weight:500">${m.nome}</div>
+        <span class="badge ${MOD_STATUS[m.status]?.cls||'b-gray'}" style="margin-top:4px">${MOD_STATUS[m.status]?.label||m.status}</span>
+      </div>
+      <button class="btn btn-sm" onclick="document.getElementById('modulo-detalhe').classList.add('hidden')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-row col2">
+      <div>
+        <label>Status</label>
+        <select onchange="updateModulo('${id}','status',this.value)">
+          <option value="nao_iniciado" ${m.status==='nao_iniciado'?'selected':''}>Não iniciado</option>
+          <option value="em_andamento" ${m.status==='em_andamento'?'selected':''}>Em andamento</option>
+          <option value="concluido"    ${m.status==='concluido'?'selected':''}>Concluído</option>
+          <option value="bloqueado"    ${m.status==='bloqueado'?'selected':''}>Bloqueado</option>
+        </select>
+      </div>
+      <div>
+        <label>Progresso: ${m.pct}%</label>
+        <input type="range" min="0" max="100" value="${m.pct}" oninput="updateModulo('${id}','pct',+this.value);this.previousElementSibling.textContent='Progresso: '+this.value+'%'">
+      </div>
+    </div>
+    <div class="form-row">
+      <div><label>Observações</label>
+        <textarea rows="2" placeholder="Notas, impedimentos, próximos passos..." onblur="updateModulo('${id}','obs',this.value)">${m.obs||''}</textarea>
+      </div>
+    </div>`;
+}
+function updateModulo(id, campo, val) {
+  const m = STATE.modulos.find(x=>x.id===id);
+  if (m) { m[campo]=val; save(); renderModulos(); }
+}
+
+// ── DECISÕES ──────────────────────────────────────────────────────────
+function addDecisao() {
+  const titulo = document.getElementById('d-titulo').value.trim();
+  const texto  = document.getElementById('d-texto').value.trim();
+  if (!titulo||!texto) { alert('Preencha título e contexto.'); return; }
+  STATE.decisoes.unshift({
+    id: Date.now(),
+    titulo,
+    texto,
+    modulo:  document.getElementById('d-modulo').value,
+    impacto: document.getElementById('d-impacto').value,
+    autor:   STATE.perfil.nome,
+    ts:      Date.now()
+  });
+  document.getElementById('d-titulo').value='';
+  document.getElementById('d-texto').value='';
+  save(); renderDecisoes(); hideModal('modal-decisao');
+}
+function delDecisao(id) {
+  if (!confirm('Remover decisão?')) return;
+  STATE.decisoes = STATE.decisoes.filter(d=>d.id!==id);
+  save(); renderDecisoes();
+}
+const IMP = { alto:'b-red', medio:'b-amber', baixo:'b-gray' };
+function renderDecisoes() {
+  const el = document.getElementById('decisoes-list');
+  if (!STATE.decisoes.length) { el.innerHTML='<div class="empty"><i class="ti ti-bulb"></i>Nenhuma decisão registrada.</div>'; return; }
+  el.innerHTML = STATE.decisoes.map(d=>`
+    <div class="decisao">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="decisao-titulo">${escHtml(d.titulo)}</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:10px">
+          ${d.impacto?`<span class="badge ${IMP[d.impacto]||'b-gray'}">Impacto ${d.impacto}</span>`:''}
+          <button class="btn btn-sm btn-danger" onclick="delDecisao(${d.id})"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="decisao-texto">${escHtml(d.texto)}</div>
+      <div class="decisao-meta">
+        ${d.autor?`<span><i class="ti ti-user" style="vertical-align:-2px"></i> ${d.autor}</span>`:''}
+        ${d.modulo?`<span>${d.modulo}</span>`:''}
+        <span>${fmtDate(d.ts)}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ── EQUIPE ────────────────────────────────────────────────────────────
+function addMembro() {
+  const nome = document.getElementById('eq-nome').value.trim();
+  if (!nome) { alert('Informe o nome.'); return; }
+  STATE.equipe.push({
+    id: Date.now(),
+    nome,
+    papel: document.getElementById('eq-papel').value,
+    email: document.getElementById('eq-email').value.trim()
+  });
+  document.getElementById('eq-nome').value='';
+  document.getElementById('eq-email').value='';
+  save(); renderEquipe();
+}
+function delMembro(id) {
+  STATE.equipe = STATE.equipe.filter(e=>e.id!==id);
+  save(); renderEquipe();
+}
+function renderEquipe() {
+  const el = document.getElementById('equipe-list');
+  if (!STATE.equipe.length) { el.innerHTML='<div class="empty" style="padding:20px"><i class="ti ti-users"></i>Nenhum membro adicionado.</div>'; return; }
+  el.innerHTML = STATE.equipe.map(m=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)">
+      <div class="entry-avatar ${avColor(m.nome)}" style="width:36px;height:36px">${initials(m.nome)}</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:13px">${escHtml(m.nome)}</div>
+        <div style="font-size:12px;color:var(--tm)">${m.papel}${m.email?' · '+m.email:''}</div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="delMembro(${m.id})"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+}
+
+// ── UTIL ──────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── INICIALIZAÇÃO ─────────────────────────────────────────────────────
+load();
+if (STATE.perfil.nome) {
+  document.getElementById('p-nome').value  = STATE.perfil.nome;
+  document.getElementById('p-papel').value = STATE.perfil.papel;
+}
+renderPerfil();
+renderLog();
+renderTarefas();
+renderModulos();
+renderDecisoes();
+renderEquipe();
+renderBadgeTarefas();
+</script>
+</body>
+</html>
