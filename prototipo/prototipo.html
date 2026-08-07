@@ -94,6 +94,10 @@ tbody tr:hover td{background:var(--s1)}
   body.printing-dre .app,body.printing-dre .main,body.printing-dre .content{display:block!important;height:auto!important;overflow:visible!important}
   body.printing-dre{overflow:visible!important;height:auto!important}
 }
+.import-dropzone{border:1.5px dashed var(--bs);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s}
+.import-dropzone:hover,.import-dropzone.dragover{background:var(--bg-acc);border-color:var(--acc)}
+.import-info{margin-top:10px;font-size:12px;color:var(--ts);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.import-info .import-remove{color:var(--t-er);cursor:pointer;font-size:11px;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -110,6 +114,7 @@ tbody tr:hover td{background:var(--s1)}
   <div class="ni" data-p="reajustes"><i class="ti ti-trending-up"></i>Reajustes</div>
   <div class="ni" data-p="golive"><i class="ti ti-rocket"></i>Go-live <span class="nb">2</span></div>
   <div class="ni" data-p="validacao"><i class="ti ti-shield-check"></i>Validação IA <span class="nb">3</span></div>
+  <div class="ni" data-p="emails"><i class="ti ti-mail"></i>Envio de E-mails</div>
   <div class="nav-sec">Financeiro</div>
   <div class="ni" data-p="receber"><i class="ti ti-cash"></i>Contas a Receber</div>
   <div class="ni" data-p="pagar"><i class="ti ti-credit-card"></i>Contas a Pagar</div>
@@ -118,6 +123,7 @@ tbody tr:hover td{background:var(--s1)}
   <div class="ni" data-p="conciliacao"><i class="ti ti-check"></i>Conciliação</div>
   <div class="ni" data-p="comissoes"><i class="ti ti-star"></i>Comissões</div>
   <div class="ni" data-p="orcamento"><i class="ti ti-target"></i>Orçamento</div>
+  <div class="ni" data-p="importacao"><i class="ti ti-upload"></i>Importação de Arquivos</div>
 </nav>
 
 <div class="main">
@@ -152,6 +158,137 @@ tbody tr:hover td{background:var(--s1)}
       <div class="metric"><div class="ml" id="m-despesas-label">Despesas jun/26</div><div class="mv" id="m-despesas-value">R$ 26,4k</div></div>
       <div class="metric"><div class="ml">Orçamento atingido</div><div class="mv" id="m-orcamento-value">76,3%</div><div class="ms" id="m-orcamento-sub">Meta: R$ 50k</div></div>
       <div class="metric"><div class="ml">Conciliação pendente</div><div class="mv" id="m-conciliacao-value" style="color:var(--t-wn)">8</div><div class="ms">lançamentos</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ENVIO DE E-MAILS -->
+<div id="p-emails" class="page">
+  <div class="topbar"><div><h1>Envio de E-mails</h1><p>Cobrança, reajuste e lembretes para clientes</p></div></div>
+  <div class="content">
+    <div class="g2" style="align-items:start">
+      <div class="card">
+        <div class="card-title">Destinatários</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);cursor:pointer;margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid var(--border)">
+          <input type="checkbox" id="email-select-all"> Selecionar todos os clientes
+        </label>
+        <div id="email-client-list" style="display:flex;flex-direction:column;max-height:220px;overflow-y:auto">
+          <label class="email-client-item" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);cursor:pointer;padding:4px 2px"><input type="checkbox" class="email-client-cb" value="Horizonte Tech"> Horizonte Tech</label>
+          <label class="email-client-item" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);cursor:pointer;padding:4px 2px"><input type="checkbox" class="email-client-cb" value="FarmaNacional"> FarmaNacional</label>
+          <label class="email-client-item" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);cursor:pointer;padding:4px 2px"><input type="checkbox" class="email-client-cb" value="Vale Verde"> Vale Verde</label>
+          <label class="email-client-item" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);cursor:pointer;padding:4px 2px"><input type="checkbox" class="email-client-cb" value="Campos Gerais"> Campos Gerais</label>
+          <label class="email-client-item" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);cursor:pointer;padding:4px 2px"><input type="checkbox" class="email-client-cb" value="Aprender Mais"> Aprender Mais</label>
+          <label class="email-client-item" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);cursor:pointer;padding:4px 2px"><input type="checkbox" class="email-client-cb" value="ConectaShop"> ConectaShop</label>
+        </div>
+        <div style="font-size:11px;color:var(--tm);margin-top:8px" id="email-selected-count">0 cliente(s) selecionado(s)</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Assunto e mensagem</div>
+        <select id="email-subject-select" class="date-input" style="width:100%;margin-bottom:10px">
+          <option value="cobranca">Cobrança</option>
+          <option value="reajuste">Aviso de Reajuste</option>
+          <option value="vencimento">Lembrete de Vencimento de Boleto</option>
+          <option value="outro">Outro assunto</option>
+        </select>
+        <input type="text" id="email-subject-custom" class="date-input" placeholder="Digite o assunto..." style="display:none;width:100%;margin-bottom:10px;box-sizing:border-box">
+        <textarea id="email-body" style="width:100%;min-height:150px;font-size:12px;padding:8px 10px;border:0.5px solid var(--bs);border-radius:var(--r);font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-title">Anexos</div>
+      <div class="import-dropzone" id="email-attach-drop">
+        <i class="ti ti-paperclip" style="font-size:24px;color:var(--tm)"></i>
+        <div style="font-size:12px;color:var(--ts);margin-top:8px">Arraste os arquivos aqui ou clique para selecionar (nota fiscal, boleto, planilha, etc.)</div>
+      </div>
+      <input type="file" id="email-attach-input" multiple style="display:none">
+      <div id="email-attach-list" style="display:flex;flex-direction:column;gap:6px;margin-top:10px"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div id="email-summary" style="font-size:12px;color:var(--t-er)"></div>
+        <button id="email-send-btn" class="btn btn-p"><i class="ti ti-send"></i>Enviar E-mails</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-title">Histórico de envios</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Assunto</th><th>Destinatários</th><th>Anexos</th><th>Status</th></tr></thead>
+          <tbody id="email-history-body">
+            <tr><td>02/07/2026</td><td><span class="badge brd">Cobrança</span></td><td>ConectaShop</td><td>1 arquivo</td><td><span class="badge bgn">Enviado</span></td></tr>
+            <tr><td>28/06/2026</td><td><span class="badge bam">Lembrete de Vencimento</span></td><td>FarmaNacional, Vale Verde</td><td>—</td><td><span class="badge bgn">Enviado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="email-confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center">
+  <div class="card" style="max-width:420px;width:90%">
+    <div class="card-title">Confirmar envio</div>
+    <div id="email-confirm-text" style="font-size:12px;color:var(--ts);margin-bottom:14px;line-height:1.5"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="email-confirm-cancel" class="btn">Cancelar</button>
+      <button id="email-confirm-ok" class="btn btn-p">Confirmar envio</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORTAÇÃO DE ARQUIVOS -->
+<div id="p-importacao" class="page">
+  <div class="topbar"><div><h1>Importação de Arquivos</h1><p>Arquivo bancário e K2 (.txt)</p></div></div>
+  <div class="content">
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="card-title"><span><i class="ti ti-building-bank" style="margin-right:6px;color:var(--acc)"></i>Arquivo Bancário (TXT)</span></div>
+        <div class="import-dropzone" id="import-drop-banco" data-origem="banco">
+          <i class="ti ti-file-upload" style="font-size:26px;color:var(--tm)"></i>
+          <div style="font-size:12px;color:var(--ts);margin-top:8px">Arraste o arquivo .txt aqui ou clique para selecionar</div>
+          <div style="font-size:10px;color:var(--tm);margin-top:3px">Contas a Pagar e a Receber</div>
+        </div>
+        <input type="file" accept=".txt" id="import-input-banco" style="display:none">
+        <div id="import-info-banco" class="import-info" style="display:none"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span><i class="ti ti-receipt" style="margin-right:6px;color:var(--acc)"></i>K2 — Faturamento / Notas Fiscais (TXT)</span></div>
+        <div class="import-dropzone" id="import-drop-k2" data-origem="k2">
+          <i class="ti ti-file-upload" style="font-size:26px;color:var(--tm)"></i>
+          <div style="font-size:12px;color:var(--ts);margin-top:8px">Arraste o arquivo .txt aqui ou clique para selecionar</div>
+          <div style="font-size:10px;color:var(--tm);margin-top:3px">Notas fiscais emitidas</div>
+        </div>
+        <input type="file" accept=".txt" id="import-input-k2" style="display:none">
+        <div id="import-info-k2" class="import-info" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="card" id="import-preview-card" style="display:none;margin-bottom:14px">
+      <div class="card-title">
+        <span>Pré-visualização — <span id="import-preview-filename" class="mono"></span></span>
+        <button id="import-confirm-btn" class="btn btn-p">Confirmar importação</button>
+      </div>
+      <div style="font-size:11px;color:var(--tm);margin-bottom:10px" id="import-preview-summary"></div>
+      <div class="tbl-wrap" style="max-height:280px;overflow:auto">
+        <table id="import-preview-table"></table>
+      </div>
+      <div style="font-size:10px;color:var(--tm);margin-top:8px">Confira as colunas antes de confirmar. O mapeamento exato dos campos deve ser ajustado quando o layout real do arquivo do banco/K2 for definido.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Histórico de importações</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Origem</th><th>Arquivo</th><th>Registros</th><th>Status</th></tr></thead>
+          <tbody id="import-history-body">
+            <tr><td>05/07/2026</td><td><span class="badge bbl">Banco</span></td><td class="mono">extrato_junho.txt</td><td>18</td><td><span class="badge bgn">Concluído</span></td></tr>
+            <tr><td>01/07/2026</td><td><span class="badge bpr">K2</span></td><td class="mono">k2_faturamento_junho.txt</td><td>6</td><td><span class="badge bgn">Concluído</span></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -859,6 +996,311 @@ document.querySelectorAll('.ni').forEach(n=>{
     monthSelect.addEventListener('change', atualizarDRE);
     yearSelect.addEventListener('change', atualizarDRE);
   }
+})();
+
+// ---- IMPORTAÇÃO DE ARQUIVOS (TXT — Banco e K2) ----
+(function(){
+  const previewCard = document.getElementById('import-preview-card');
+  const previewFilename = document.getElementById('import-preview-filename');
+  const previewSummary = document.getElementById('import-preview-summary');
+  const previewTable = document.getElementById('import-preview-table');
+  const confirmBtn = document.getElementById('import-confirm-btn');
+  const historyBody = document.getElementById('import-history-body');
+  if(!previewCard) return;
+
+  let arquivoAtual = null; // { origem, nome, dados, numCampos }
+
+  function detectarDelimitador(linha){
+    const candidatos = [';', '|', '\t', ','];
+    for(const d of candidatos){
+      if(linha.split(d).length > 1) return d;
+    }
+    return null;
+  }
+
+  function parseArquivo(texto){
+    const linhas = texto.split(/\r\n|\n|\r/).filter(l => l.trim().length > 0);
+    if(!linhas.length) return { dados: [], numCampos: 0 };
+    const delimitador = detectarDelimitador(linhas[0]);
+    const dados = linhas.map(l => delimitador ? l.split(delimitador).map(c => c.trim()) : [l]);
+    const numCampos = Math.max(...dados.map(d => d.length));
+    return { dados, numCampos, delimitador };
+  }
+
+  function renderPreview(origem, nome, resultado){
+    arquivoAtual = { origem, nome, dados: resultado.dados, numCampos: resultado.numCampos };
+
+    previewFilename.textContent = nome;
+    const tipoTexto = origem === 'banco' ? 'lançamentos de contas a pagar/receber' : 'notas fiscais / faturamento';
+    previewSummary.textContent = resultado.dados.length + ' linha(s) detectada(s) — prontas para importar como ' + tipoTexto + '.';
+
+    let thead = '<thead><tr>';
+    for(let i = 0; i < resultado.numCampos; i++) thead += '<th>Campo ' + (i + 1) + '</th>';
+    thead += '</tr></thead>';
+
+    const linhasExibidas = resultado.dados.slice(0, 15);
+    let tbody = '<tbody>';
+    linhasExibidas.forEach(linha => {
+      tbody += '<tr>';
+      for(let i = 0; i < resultado.numCampos; i++){
+        tbody += '<td>' + (linha[i] !== undefined ? escapeHtml(linha[i]) : '') + '</td>';
+      }
+      tbody += '</tr>';
+    });
+    tbody += '</tbody>';
+
+    previewTable.innerHTML = thead + tbody;
+    previewCard.style.display = 'block';
+
+    if(resultado.dados.length > 15){
+      previewSummary.textContent += ' Mostrando as primeiras 15 de ' + resultado.dados.length + ' linhas.';
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function mostrarInfoArquivo(origem, nome, numLinhas){
+    const info = document.getElementById('import-info-' + origem);
+    info.style.display = 'flex';
+    info.innerHTML = '<i class="ti ti-file-check" style="color:var(--t-ok)"></i>' +
+      '<span class="mono">' + escapeHtml(nome) + '</span>' +
+      '<span style="color:var(--tm)">(' + numLinhas + ' linhas)</span>' +
+      '<span class="import-remove" data-origem="' + origem + '">remover</span>';
+  }
+
+  function processarArquivo(origem, file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const resultado = parseArquivo(e.target.result);
+      mostrarInfoArquivo(origem, file.name, resultado.dados.length);
+      renderPreview(origem, file.name, resultado);
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  function configurarDropzone(origem){
+    const zona = document.getElementById('import-drop-' + origem);
+    const input = document.getElementById('import-input-' + origem);
+
+    zona.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+      if(input.files && input.files[0]) processarArquivo(origem, input.files[0]);
+    });
+
+    zona.addEventListener('dragover', (e) => { e.preventDefault(); zona.classList.add('dragover'); });
+    zona.addEventListener('dragleave', () => zona.classList.remove('dragover'));
+    zona.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zona.classList.remove('dragover');
+      if(e.dataTransfer.files && e.dataTransfer.files[0]) processarArquivo(origem, e.dataTransfer.files[0]);
+    });
+  }
+
+  configurarDropzone('banco');
+  configurarDropzone('k2');
+
+  document.querySelectorAll('.import-info').forEach(info => {
+    info.addEventListener('click', (e) => {
+      const btn = e.target.closest('.import-remove');
+      if(!btn) return;
+      const origem = btn.dataset.origem;
+      document.getElementById('import-info-' + origem).style.display = 'none';
+      document.getElementById('import-input-' + origem).value = '';
+      if(arquivoAtual && arquivoAtual.origem === origem){
+        previewCard.style.display = 'none';
+        arquivoAtual = null;
+      }
+    });
+  });
+
+  confirmBtn.addEventListener('click', () => {
+    if(!arquivoAtual) return;
+    const badge = arquivoAtual.origem === 'banco'
+      ? '<span class="badge bbl">Banco</span>'
+      : '<span class="badge bpr">K2</span>';
+    const linha = document.createElement('tr');
+    linha.innerHTML = '<td>Hoje</td><td>' + badge + '</td><td class="mono">' + escapeHtml(arquivoAtual.nome) + '</td><td>' + arquivoAtual.dados.length + '</td><td><span class="badge bgn">Concluído</span></td>';
+    historyBody.insertBefore(linha, historyBody.firstChild);
+
+    previewCard.style.display = 'none';
+    document.getElementById('import-info-' + arquivoAtual.origem).style.display = 'none';
+    document.getElementById('import-input-' + arquivoAtual.origem).value = '';
+    arquivoAtual = null;
+  });
+})();
+
+// ---- ENVIO DE E-MAILS PARA CLIENTES ----
+(function(){
+  const listaClientes = document.getElementById('email-client-list');
+  if(!listaClientes) return;
+
+  const selectAll = document.getElementById('email-select-all');
+  const clientCbs = document.querySelectorAll('.email-client-cb');
+  const selectedCount = document.getElementById('email-selected-count');
+  const subjectSelect = document.getElementById('email-subject-select');
+  const subjectCustom = document.getElementById('email-subject-custom');
+  const bodyField = document.getElementById('email-body');
+  const attachDrop = document.getElementById('email-attach-drop');
+  const attachInput = document.getElementById('email-attach-input');
+  const attachList = document.getElementById('email-attach-list');
+  const summaryEl = document.getElementById('email-summary');
+  const sendBtn = document.getElementById('email-send-btn');
+  const historyBody = document.getElementById('email-history-body');
+  const modal = document.getElementById('email-confirm-modal');
+  const modalText = document.getElementById('email-confirm-text');
+  const modalCancel = document.getElementById('email-confirm-cancel');
+  const modalOk = document.getElementById('email-confirm-ok');
+
+  const TEMPLATES = {
+    cobranca: 'Prezado(a) cliente,\n\nIdentificamos um valor em aberto referente aos serviços prestados. Solicitamos a gentileza de regularizar o pagamento o quanto antes.\n\nEm caso de dúvidas, estamos à disposição.\n\nAtenciosamente,\nEquipe Financeiro',
+    reajuste: 'Prezado(a) cliente,\n\nInformamos que, conforme previsto em contrato, será aplicado o reajuste anual sobre os valores praticados a partir do próximo ciclo de faturamento.\n\nQualquer dúvida, estamos à disposição.\n\nAtenciosamente,\nEquipe Financeiro',
+    vencimento: 'Prezado(a) cliente,\n\nEste é um lembrete de que o boleto referente aos serviços contratados vencerá em breve. Para evitar encargos, realize o pagamento até a data de vencimento.\n\nAtenciosamente,\nEquipe Financeiro',
+    outro: ''
+  };
+  const ASSUNTO_LABEL = {
+    cobranca: 'Cobrança',
+    reajuste: 'Aviso de Reajuste',
+    vencimento: 'Lembrete de Vencimento',
+    outro: null
+  };
+  const ASSUNTO_BADGE = {
+    cobranca: 'brd',
+    reajuste: 'bpr',
+    vencimento: 'bam',
+    outro: 'bgy'
+  };
+
+  let anexos = [];
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatarTamanho(bytes){
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function atualizarContagemClientes(){
+    const n = document.querySelectorAll('.email-client-cb:checked').length;
+    selectedCount.textContent = n + (n === 1 ? ' cliente selecionado' : ' cliente(s) selecionado(s)');
+    selectAll.checked = n === clientCbs.length;
+  }
+
+  selectAll.addEventListener('change', () => {
+    clientCbs.forEach(cb => cb.checked = selectAll.checked);
+    atualizarContagemClientes();
+  });
+  clientCbs.forEach(cb => cb.addEventListener('change', atualizarContagemClientes));
+
+  subjectSelect.addEventListener('change', () => {
+    const v = subjectSelect.value;
+    subjectCustom.style.display = v === 'outro' ? 'block' : 'none';
+    bodyField.value = TEMPLATES[v] || '';
+  });
+  bodyField.value = TEMPLATES[subjectSelect.value] || '';
+
+  function renderAnexos(){
+    attachList.innerHTML = '';
+    anexos.forEach((file, idx) => {
+      const linha = document.createElement('div');
+      linha.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ts);background:var(--s1);border-radius:var(--r);padding:6px 10px';
+      linha.innerHTML = '<i class="ti ti-paperclip" style="color:var(--tm)"></i>' +
+        '<span class="mono">' + escapeHtml(file.name) + '</span>' +
+        '<span style="color:var(--tm)">(' + formatarTamanho(file.size) + ')</span>' +
+        '<span data-idx="' + idx + '" class="import-remove" style="margin-left:auto">remover</span>';
+      attachList.appendChild(linha);
+    });
+  }
+
+  attachDrop.addEventListener('click', () => attachInput.click());
+  attachInput.addEventListener('change', () => {
+    Array.from(attachInput.files || []).forEach(f => anexos.push(f));
+    attachInput.value = '';
+    renderAnexos();
+  });
+  attachDrop.addEventListener('dragover', (e) => { e.preventDefault(); attachDrop.classList.add('dragover'); });
+  attachDrop.addEventListener('dragleave', () => attachDrop.classList.remove('dragover'));
+  attachDrop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    attachDrop.classList.remove('dragover');
+    Array.from(e.dataTransfer.files || []).forEach(f => anexos.push(f));
+    renderAnexos();
+  });
+  attachList.addEventListener('click', (e) => {
+    const btn = e.target.closest('.import-remove');
+    if(!btn) return;
+    anexos.splice(Number(btn.dataset.idx), 1);
+    renderAnexos();
+  });
+
+  function assuntoAtual(){
+    const v = subjectSelect.value;
+    if(v === 'outro'){
+      return { chave: 'outro', label: subjectCustom.value.trim() || null };
+    }
+    return { chave: v, label: ASSUNTO_LABEL[v] };
+  }
+
+  sendBtn.addEventListener('click', () => {
+    const clientesSelecionados = Array.from(document.querySelectorAll('.email-client-cb:checked')).map(cb => cb.value);
+    const assunto = assuntoAtual();
+
+    if(!clientesSelecionados.length){
+      summaryEl.textContent = 'Selecione ao menos um cliente antes de enviar.';
+      return;
+    }
+    if(!assunto.label){
+      summaryEl.textContent = 'Informe o assunto do e-mail.';
+      return;
+    }
+    summaryEl.textContent = '';
+
+    const listaNomes = clientesSelecionados.length > 3
+      ? clientesSelecionados.slice(0, 3).join(', ') + ' e mais ' + (clientesSelecionados.length - 3)
+      : clientesSelecionados.join(', ');
+
+    modalText.innerHTML = 'Confirma o envio do e-mail de <strong>' + escapeHtml(assunto.label) + '</strong> para <strong>' +
+      clientesSelecionados.length + ' cliente(s)</strong>: ' + escapeHtml(listaNomes) + '.<br>' +
+      (anexos.length ? anexos.length + ' anexo(s) incluído(s).' : 'Nenhum anexo incluído.');
+    modal.style.display = 'flex';
+  });
+
+  modalCancel.addEventListener('click', () => { modal.style.display = 'none'; });
+
+  modalOk.addEventListener('click', () => {
+    const clientesSelecionados = Array.from(document.querySelectorAll('.email-client-cb:checked')).map(cb => cb.value);
+    const assunto = assuntoAtual();
+
+    const listaNomes = clientesSelecionados.length > 3
+      ? clientesSelecionados.slice(0, 3).join(', ') + ' e mais ' + (clientesSelecionados.length - 3)
+      : clientesSelecionados.join(', ');
+
+    const linha = document.createElement('tr');
+    linha.innerHTML = '<td>Hoje</td>' +
+      '<td><span class="badge ' + (ASSUNTO_BADGE[assunto.chave] || 'bgy') + '">' + escapeHtml(assunto.label) + '</span></td>' +
+      '<td>' + escapeHtml(listaNomes) + '</td>' +
+      '<td>' + (anexos.length ? anexos.length + ' arquivo(s)' : '—') + '</td>' +
+      '<td><span class="badge bgn">Enviado</span></td>';
+    historyBody.insertBefore(linha, historyBody.firstChild);
+
+    modal.style.display = 'none';
+    document.querySelectorAll('.email-client-cb').forEach(cb => cb.checked = false);
+    selectAll.checked = false;
+    atualizarContagemClientes();
+    anexos = [];
+    renderAnexos();
+    subjectSelect.value = 'cobranca';
+    subjectCustom.style.display = 'none';
+    subjectCustom.value = '';
+    bodyField.value = TEMPLATES.cobranca;
+  });
+
+  atualizarContagemClientes();
 })();
 </script>
 </body>
